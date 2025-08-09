@@ -516,8 +516,6 @@ const hour = new Date().getHours();
   chatHistory.push({ role: "assistant", content: stripHTML(welcome) });
 
   askForName();
-
-
 // Expose functions globally
 window.sendMessage = sendMessage;
 window.toggleMute = toggleMute;
