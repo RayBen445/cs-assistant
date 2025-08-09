@@ -141,7 +141,7 @@ function generateShareLink() {
   });
 }
 
-window.onload = () => {
+window.addEventListener("load", () => {
   const params = new URLSearchParams(window.location.search);
   const encodedChat = params.get("chat");
 
@@ -174,4 +174,10 @@ window.onload = () => {
   chatHistory.push({ role: "assistant", content: stripHTML(welcome) });
 
   askForName();
-};
+});
+
+// ✅ Expose functions to global scope
+window.sendMessage = sendMessage;
+window.downloadChat = downloadChat;
+window.downloadPDF = downloadPDF;
+window.generateShareLink = generateShareLink;
