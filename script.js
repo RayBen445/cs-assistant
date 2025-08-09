@@ -1,24 +1,158 @@
+let chatHistory = [];
+let userName = null;
+
+function displayMessage(sender, text) {
+  const chatBox = document.getElementById("chat-box");
+  const message = document.createElement("div");
+  message.className = sender === "user" ? "user-message" : "cs-message";
+  message.innerHTML = `<p>${text}</p>`;
+  chatBox.appendChild(message);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function stripHTML(html) {
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  return temp.textContent || temp.innerText || "";
+}
+
+function askForName() {
+  const question = "Before we begin, may I know your name? 😊";
+  displayMessage("cs", question);
+  chatHistory.push({ role: "assistant", content: question });
+}
+
+function followUpPrompt() {
+  const prompts = [
+    "Would you like to know more?",
+    "Should I explain that further?",
+    "Want to dive deeper into that?",
+    "Is there anything else you're curious about?"
+  ];
+  return prompts[Math.floor(Math.random() * prompts.length)];
+}
+
 function sendMessage() {
   const input = document.getElementById("user-input");
   const text = input.value.trim();
   if (!text) return;
 
-  const messages = document.getElementById("messages");
-
-  const userMsg = document.createElement("div");
-  userMsg.className = "message user";
-  userMsg.textContent = text;
-  messages.appendChild(userMsg);
-
-  const csMsg = document.createElement("div");
-  csMsg.className = "message cs";
-  csMsg.textContent = getCSResponse(text);
-  messages.appendChild(csMsg);
-
+  displayMessage("user", text);
+  chatHistory.push({ role: "user", content: text });
   input.value = "";
-  messages.scrollTop = messages.scrollHeight;
+
+  if (!userName) {
+    userName = text;
+    const reply = `Nice to meet you, ${userName}! 😊 What would you like to talk about today?`;
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    return;
+  }
+
+  if (/who.*(made|built|developed).*you/i.test(text)) {
+    const reply = "I was built by Cool Shot Systems, led by Heritage Oladoye—a student of Ladoke Akintola University of Technology. 🎓💡";
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+
+    const followUp = followUpPrompt();
+    displayMessage("cs", followUp);
+    chatHistory.push({ role: "assistant", content: followUp });
+    return;
+  }
+
+  const reply = `Thanks for sharing, ${userName}. That's interesting! 🤔`;
+  displayMessage("cs", reply);
+  chatHistory.push({ role: "assistant", content: reply });
+
+  const followUp = followUpPrompt();
+  displayMessage("cs", followUp);
+  chatHistory.push({ role: "assistant", content: followUp });
 }
 
-function getCSResponse(input) {
-  return "Hey there! I'm CS 😊 Let's talk.";
+function downloadChat() {
+  let content = "CS Assistant Chat History\n\n";
+  chatHistory.forEach(entry => {
+    const role = entry.role === "user" ? userName || "User" : "CS";
+    content += `${role}: ${entry.content}\n`;
+  });
+
+  const blob = new Blob([content], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "cs_chat_history.txt";
+  link.click();
 }
+
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+
+  doc.setFont("helvetica");
+  doc.setFontSize(12);
+  doc.text("CS Assistant Chat History", 10, y);
+  y += 10;
+
+  chatHistory.forEach(entry => {
+    const role = entry.role === "user" ? userName || "User" : "CS";
+    const lines = doc.splitTextToSize(`${role}: ${entry.content}`, 180);
+    lines.forEach(line => {
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(line, 10, y);
+      y += 7;
+    });
+    y += 5;
+  });
+
+  doc.save("cs_chat_history.pdf");
+}
+
+function generateShareLink() {
+  const data = {
+    userName,
+    chatHistory
+  };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const url = `${window.location.origin}${window.location.pathname}?chat=${encoded}`;
+  navigator.clipboard.writeText(url).then(() => {
+    alert("Shareable link copied to clipboard! 📋");
+  });
+}
+
+window.onload = () => {
+  const params = new URLSearchParams(window.location.search);
+  const encodedChat = params.get("chat");
+
+  if (encodedChat) {
+    try {
+      const decoded = decodeURIComponent(escape(atob(encodedChat)));
+      const data = JSON.parse(decoded);
+      userName = data.userName;
+      chatHistory = data.chatHistory;
+
+      chatHistory.forEach(entry => {
+        const sender = entry.role === "user" ? "user" : "cs";
+        displayMessage(sender, entry.content);
+      });
+    } catch (e) {
+      console.error("Invalid chat data");
+    }
+    return;
+  }
+
+  const hour = new Date().getHours();
+  let greeting = "Hi there";
+
+  if (hour < 12) greeting = "Good morning";
+  else if (hour < 18) greeting = "Good afternoon";
+  else greeting = "Good evening";
+
+  const welcome = `${greeting}! 🌞 I'm <span class="cs-name">CS</span>, your friendly assistant.`;
+  displayMessage("cs", welcome);
+  chatHistory.push({ role: "assistant", content: stripHTML(welcome) });
+
+  askForName();
+};

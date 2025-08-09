@@ -1,32 +1,95 @@
 body {
-  font-family: sans-serif;
-  background: #f0f4ff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
 }
-#chat-container {
-  width: 90%;
-  max-width: 400px;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
+
+.chat-container {
+  max-width: 600px;
+  margin: 40px auto;
+  background-color: #fff;
+  border-radius: 8px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
-#messages {
-  height: 300px;
+
+.chat-box {
+  height: 400px;
   overflow-y: auto;
-  margin-bottom: 10px;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
 }
-.message {
-  margin: 5px 0;
+
+.input-area {
+  display: flex;
+  padding: 10px;
 }
-.user {
+
+input[type="text"] {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 10px 20px;
+  margin-left: 10px;
+  font-size: 16px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+.user-message, .cs-message {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 6px;
+  max-width: 80%;
+}
+
+.user-message {
+  background-color: #e1f5fe;
+  align-self: flex-end;
   text-align: right;
-  color: blue;
 }
-.cs {
+
+.cs-message {
+  background-color: #f0f0f0;
+  align-self: flex-start;
   text-align: left;
-  color: green;
+}
+
+.cs-name {
+  font-weight: bold;
+  color: #0078d4;
+}
+
+.download-area {
+  text-align: center;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.download-area button {
+  padding: 8px 14px;
+  margin: 5px;
+  font-size: 15px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.download-area button:hover {
+  background-color: #005fa3;
 }
