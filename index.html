@@ -11,7 +11,8 @@
     <section id="chat-box" class="chat-box" aria-live="polite"></section>
 
     <section class="input-area">
-      <input type="text" id="user-input" placeholder="Type your message..." aria-label="User input" />
+      <!-- Changed input to textarea for multi-line support -->
+      <textarea id="user-input" rows="3" placeholder="Type your message..." aria-label="User input"></textarea>
       <button onclick="sendMessage()" aria-label="Send message">Send</button>
     </section>
 
@@ -26,15 +27,14 @@
     </section>
 
     <section class="download-area">
-      <button onclick="downloadChat()" aria-label="Download chat as text">Download as TXT</button>
+      <!-- Only the PDF download and share link functions are implemented in JS -->
       <button onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
       <button onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
     </section>
   </main>
 
   <!-- jsPDF CDN -->
-  <!-- jsPDF CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script type="module" src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
-        </html>
+</html>
