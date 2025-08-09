@@ -161,19 +161,19 @@ async function sendMessage() {
 
   if (!userName) {
     userName = text;
-    return respond(`Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`);
+    respond(`Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`);
   }
 
   const identityReply = handleIdentity(text);
   if (identityReply) {
-    return respond(identityReply);
+   respond(identityReply);
   }
 
   const goalMatch = text.match(/my goal is (.+)/i);
   if (goalMatch) {
     const goalText = goalMatch[1];
     goals.push({ text: goalText, added: new Date().toISOString() });
-    return respond(`Got it! I've added your goal: "${goalText}" 🎯`);
+    respond(`Got it! I've added your goal: "${goalText}" 🎯`);
   
 }
   // 🔄 Undo last goal
@@ -182,7 +182,7 @@ async function sendMessage() {
       return respond("You don't have any goals to undo. 🎯");
     }
     const removed = goals.pop();
-    return respond(`✅ Removed your last goal: "${removed.text}"`);
+    respond(`✅ Removed your last goal: "${removed.text}"`);
   }
   saveProfile();
    return;
