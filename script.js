@@ -84,6 +84,11 @@ function downloadChat() {
 }
 
 function downloadPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("PDF library not loaded. Please check your internet connection.");
+    return;
+  }
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   let y = 10;
