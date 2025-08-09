@@ -108,8 +108,14 @@ async function getGiftedResponse(message) {
 
   try {
     const response = await fetch(url);
-    const data = await response.json(); // ✅ This was broken
-    const reply = data.reply || "I'm here to help!";
+    const raw = await response.text();
+    console.log("Raw API response:", raw);
+
+    const data = JSON.parse(raw);
+    console.log("Parsed response:", data);
+
+    // Try different fields
+    const reply = data.reply || data.message || data.text || JSON.stringify(data);
     return reply;
   } catch (error) {
     console.error("API error:", error);
@@ -154,7 +160,7 @@ function handleIdentity(text) {
     if (item.pattern.test(text)) {
       return item.reply;
     }
-  
+  }
   return null; // No match found
 }
   // 🎯 Goal tracking
