@@ -187,6 +187,8 @@ async function sendMessage() {
     const removed = goals.pop();
     return respond(`✅ Removed your last goal: "${removed.text}"`);
   }
+  saveProfile();
+   return;
   // 📋 Show saved goals
   if (/show.*my.*goals/i.test(text)) {
     if (goals.length === 0) {
