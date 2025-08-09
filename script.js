@@ -102,18 +102,28 @@ I'm celebrating another year of helping, chatting, and growing smarter with you.
     saveProfile();
   }
 }
-
 async function getGiftedResponse(message) {
   const encoded = encodeURIComponent(message);
   const url = `https://api.giftedtech.co.ke/api/ai/openai?apikey=gifted&q=${encoded}`;
 
   try {
     const response = await fetch(url);
-    const dataasync function sendMessage() {
+    const data = await response.json(); // ✅ This was broken
+    const reply = data.reply || "I'm here to help!";
+    return reply;
+  } catch (error) {
+    console.error("API error:", error);
+    return "Oops! Something went wrong while contacting the AI.";
+  }
+}
+
+async function sendMessage() {
   const input = document.getElementById("user-input");
   const text = input.value.trim();
   if (!text) return;
 
+  // Your logic continues here...
+}
   // 🗣️ Show user message
   displayMessage("user", text);
   chatHistory.push({ role: "user", content: text });
