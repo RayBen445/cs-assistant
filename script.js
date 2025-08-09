@@ -289,19 +289,9 @@ function handleIdentity(text) {
     const allHistory = JSON.parse(localStorage.getItem("csChatHistory")) || {};
     allHistory[todayKey] = chatHistory;
     localStorage.setItem("csChatHistory", JSON.stringify(allHistory));
+  
   }
   
-  } catch (error) {
-    console.error("API error:", error);
-    const fallback = "Oops! Something went wrong while contacting the AI.";
-    displayMessage("cs", fallback);
-    chatHistory.push({ role: "assistant", content: fallback });
-  }
-}
-
-   content += `${role}: ${entry.content}\n`;
-  });
-
   const blob = new Blob([content], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
