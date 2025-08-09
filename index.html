@@ -7,11 +7,17 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="light">
+  <!-- 🌟 Header Section -->
+  <header class="page-header">
+    <h1>CS Assistant</h1>
+    <p>Your smart companion, always ready to help 🤖</p>
+  </header>
+
+  <!-- 💬 Main Chat Area -->
   <main class="chat-container">
     <section id="chat-box" class="chat-box" aria-live="polite"></section>
 
     <section class="input-area">
-      <!-- Changed input to textarea for multi-line support -->
       <textarea id="user-input" rows="3" placeholder="Type your message..." aria-label="User input"></textarea>
       <button onclick="sendMessage()" aria-label="Send message">Send</button>
     </section>
@@ -27,14 +33,18 @@
     </section>
 
     <section class="download-area">
-      <!-- Only the PDF download and share link functions are implemented in JS -->
       <button onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
       <button onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
     </section>
   </main>
 
-  <!-- jsPDF CDN -->
+  <!-- 🧩 Footer Section -->
+  <footer class="page-footer">
+    <p>&copy; 2025 CS Assistant. Built with 💙 in Nigeria.</p>
+  </footer>
+
+  <!-- 📦 External Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="module" src="script.js"></script>
 </body>
-</html>
+        </html>
