@@ -118,8 +118,7 @@ async function getGiftedResponse(message) {
     displayMessage("cs", fallback);
     chatHistory.push({ role: "assistant", content: fallback });
   }
-  }
-
+  
   try {
     const response = await fetch(url);
     const data = await response.json();
