@@ -334,8 +334,7 @@ window.addEventListener("load", () => {
     if (muteBtn) muteBtn.textContent = isMuted ? "🔇 Voice: Off" : "🔊 Voice: On";
   } else {
     askForName();
-  }
-
+  
   checkBirthday(); // 🎂 Birthday check on load
 }
 
