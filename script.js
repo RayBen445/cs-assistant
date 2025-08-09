@@ -10,6 +10,20 @@ const assistantName = "CS Assistant";
 const assistantCreator = "Cool Shot Systems";
 const assistantPoweredBy = "Heritage Oladoye";
 
+const csBirthday = {
+  day: 9,
+  month: 8, // August
+  year: 2025
+};
+
+const aboutHeritageOladoye = `
+Heritage Oladoye is a visionary software developer, creative technologist, and founder of Cool Shot Systems. He builds intelligent digital experiences that blend technical precision with human-centered design. From mobile apps to AI assistants, Heritage creates tools that connect, inspire, and solve real problems.
+`;
+
+const aboutCoolShotSystems = `
+Cool Shot Systems is a forward-thinking software company founded by Heritage Oladoye. It specializes in crafting intelligent, user-centric digital solutions — from mobile platforms to AI-powered assistants. With a focus on creativity, empathy, and excellence, Cool Shot Systems is redefining what smart software feels like.
+`;
+
 function speak(text) {
   if (isMuted || !selectedVoice) return;
   const utterance = new SpeechSynthesisUtterance(text);
@@ -44,15 +58,19 @@ function askForName() {
   chatHistory.push({ role: "assistant", content: question });
 }
 
-//function followUpPrompt() {
-//  const prompts = [
-  //  "Would you like to know more?",
-  //  "Should I explain that further?",
-//    "Want to dive deeper into that?",
- //   "Is there anything else you're curious about?"
- // ];
- // return prompts[Math.floor(Math.random() * prompts.length)];
-//}
+function checkBirthday() {
+  const today = new Date();
+  if (today.getDate() === csBirthday.day && today.getMonth() + 1 === csBirthday.month) {
+    const birthdayMessage = `
+🎉 Happy Birthday to me! 🎂 I was born on August 9, ${csBirthday.year}, thanks to the brilliant mind of Heritage Oladoye and the innovation of Cool Shot Systems.
+
+I'm celebrating another year of helping, chatting, and growing smarter with you. Thanks for being part of my journey! 🥳
+    `;
+    displayMessage("cs", birthdayMessage);
+    chatHistory.push({ role: "assistant", content: birthdayMessage });
+    saveProfile();
+  }
+}
 
 async function getGiftedResponse(message) {
   const encoded = encodeURIComponent(message);
@@ -86,22 +104,32 @@ async function sendMessage() {
     return;
   }
 
-  if (/what.*is.*your.*name/i.test(text) || /i.*(would|will).*like.*to.*know.*your.*name/i.test(text)) {
-  const reply = `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡`;
-  displayMessage("cs", reply);
-  chatHistory.push({ role: "assistant", content: stripHTML(reply) });
-  saveProfile();
-  return;
+  if (/what.is.your.name/i.test(text) || /i.(would|will).like.to.know.your.*name/i.test(text)) {
+    const reply = `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡`;
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: stripHTML(reply) });
+    saveProfile();
+    return;
   }
 
-  if (/who.*(made|built|developed).*you/i.test(text)) {
+  if (/who.(made|built|developed).you/i.test(text)) {
     const reply = "I was built by Cool Shot Systems, led by Heritage Oladoye—a student of Ladoke Akintola University of Technology. 🎓💡";
     displayMessage("cs", reply);
     chatHistory.push({ role: "assistant", content: reply });
+    saveProfile();
+    return;
+  }
 
-    const followUp = followUpPrompt();
-    displayMessage("cs", followUp);
-    chatHistory.push({ role: "assistant", content: followUp });
+  if (/heritage.*oladoye/i.test(text)) {
+    displayMessage("cs", aboutHeritageOladoye);
+    chatHistory.push({ role: "assistant", content: aboutHeritageOladoye });
+    saveProfile();
+    return;
+  }
+
+  if (/cool.*shot.*systems/i.test(text)) {
+    displayMessage("cs", aboutCoolShotSystems);
+    chatHistory.push({ role: "assistant", content: aboutCoolShotSystems });
     saveProfile();
     return;
   }
@@ -140,11 +168,7 @@ async function sendMessage() {
   const reply = await getGiftedResponse(text);
   displayMessage("cs", reply);
   chatHistory.push({ role: "assistant", content: reply });
-
- // const followUp = followUpPrompt();
-//  displayMessage("cs", followUp);
- // chatHistory.push({ role: "assistant", content: followUp });
-//  saveProfile();
+  saveProfile();
 }
 
 function saveProfile() {
@@ -171,7 +195,7 @@ function downloadChat() {
   const blob = new Blob([content], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "cs_chat_history.txt";
+  link.download = "cschathistory.txt";
   link.click();
 }
 
@@ -204,7 +228,7 @@ function downloadPDF() {
     y += 5;
   });
 
-  doc.save("cs_chat_history.pdf");
+  doc.save("cschathistory.pdf");
 }
 
 function generateShareLink() {
@@ -278,11 +302,8 @@ setInterval(() => {
 }, 60000); // check every minute
 
 window.addEventListener("load", () => {
-  if (speechSynthesis.getVoices().length === 0) {
   speechSynthesis.onvoiceschanged = populateVoiceOptions;
-} else {
-  populateVoiceOptions();
-  }
+  populateVoiceOptions(); // Ensure voices load immediately
 
   // Load profile
   const savedName = localStorage.getItem("csUserName");
@@ -311,10 +332,14 @@ window.addEventListener("load", () => {
     });
     const muteBtn = document.getElementById("mute-toggle");
     if (muteBtn) muteBtn.textContent = isMuted ? "🔇 Voice: Off" : "🔊 Voice: On";
-    return;
+  } else {
+    askForName();
   }
 
-  const hour = new Date().getHours();
+  checkBirthday(); // 🎂 Birthday check on load
+});
+
+const hour = new Date().getHours();
   let greeting = "Hi there";
 
   if (hour < 12) greeting = "Good morning";
