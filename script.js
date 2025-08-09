@@ -50,9 +50,9 @@ function askForName() {
   //  "Should I explain that further?",
 //    "Want to dive deeper into that?",
  //   "Is there anything else you're curious about?"
-  ];
-  return prompts[Math.floor(Math.random() * prompts.length)];
-}
+ // ];
+ // return prompts[Math.floor(Math.random() * prompts.length)];
+//}
 
 async function getGiftedResponse(message) {
   const encoded = encodeURIComponent(message);
