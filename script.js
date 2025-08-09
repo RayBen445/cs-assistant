@@ -286,19 +286,29 @@ function resetChat() {
 }
 }
 
-function resetChat() {
-  localStorage.clear();
-  location.reload();
-}
- const { jsPDF } = window.jspdf;
+function exportChatHistoryAsPDF() {
+  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+
+  // 🧾 Cover Page
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("CS Assistant Chat History", 105, 60, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(14);
+  const date = new Date().toLocaleString();
+  doc.text(`Exported on: ${date}`, 105, 75, { align: "center" });
+
+  if (userName) {
+    doc.text(`User: ${userName}`, 105, 85, { align: "center" });
+  }
+
+  doc.addPage(); // ➕ Move to next page for actual chat
+
+  // 💬 Chat History
   let y = 10;
-
-  doc.setFont("helvetica");
   doc.setFontSize(12);
-  doc.text("CS Assistant Chat History", 10, y);
-  y += 10;
-
   chatHistory.forEach(entry => {
     const role = entry.role === "user" ? userName || "User" : "CS";
     const lines = doc.splitTextToSize(`${role}: ${entry.content}`, 180);
