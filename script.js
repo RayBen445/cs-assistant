@@ -221,20 +221,7 @@ async function sendMessage() {
     return;
   }
 
-  const reply = await getGiftedResponse(text);
-  displayMessage("cs", reply);
-  chatHistory.push({ role: "assistant", content: reply });
-  saveProfile();
-}
-
-  await getGiftedResponse(text);
-  }tion saveProfile() {
-  localStorage.setItem("csUserName", userName);
-  localStorage.setItem("csChatHistory", JSON.stringify(chatHistory));
-  localStorage.setItem("csMuted", JSON.stringify(isMuted));
-  localStorage.setItem("csTheme", currentTheme);
-  localStorage.setItem("csGoals", JSON.stringify(goals));
-  localStorage.setItem("csTasks", JSON.stringify(tasks));
+  
 }
 
 function resetChat() {
@@ -262,7 +249,48 @@ function downloadPDF() {
     return;
   }
 
-  const { jsPDF } = window.jspdf;
+  const { jsPDF } async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  displayMessage("user", text);
+  chatHistory.push({ role: "user", content: text });
+  input.value = "";
+
+  if (/cool.*shot.*systems/i.test(text)) {
+    displayMessage("cs", aboutCoolShotSystems);
+    chatHistory.push({ role: "assistant", content: aboutCoolShotSystems });
+    saveProfile();
+    return;
+  }
+
+  const reply = await getGiftedResponse(text);
+  displayMessage("cs", reply);
+  chatHistory.push({ role: "assistant", content: reply });
+  saveProfile();
+}
+
+function saveProfile() {
+  localStorage.setItem("csUserName", userName);
+  localStorage.setItem("csChatHistory", JSON.stringify(chatHistory));
+  localStorage.setItem("csMuted", JSON.stringify(isMuted));
+  localStorage.setItem("csTheme", currentTheme);
+  localStorage.setItem("csGoals", JSON.stringify(goals));
+  localStorage.setItem("csTasks", JSON.stringify(tasks));
+}
+
+function resetChat() {
+  localStorage.clear();
+  location.reload();
+}
+}
+
+function resetChat() {
+  localStorage.clear();
+  location.reload();
+}
+  = window.jspdf;
   const doc = new jsPDF();
   let y = 10;
 
