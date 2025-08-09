@@ -459,7 +459,8 @@ setInterval(() => {
   });
 }, 60000); // check every minute
 
-  const text = inputElement.value.trim(); // or however you're getting the message
+  async function sendMessage() {
+  const text = inputElement.value.trim();
   const reply = await getGiftedResponse(text);
   displayMessage("cs", reply);
   chatHistory.push({ role: "assistant", content: reply });
