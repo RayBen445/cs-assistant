@@ -148,12 +148,13 @@ function handleIdentity(text) {
       reply: `I was built by Cool Shot Systems, led by Heritage Oladoye—a student of Ladoke Akintola University of Technology. 🎓💡`
     },
     {
+      
       pattern: /who.*created.*you|who.*developed.*you|tell.*me.*about.*your.*creator|what.*is.*your.*origin|where.*were.*you.*made/i,
-      reply: `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through sma[...]
+      reply: `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through smart conversations and thoughtful assistance.`
     },
     {
       pattern: /tell\.me\.about.*yourself/i,
-      reply: `Hi! I'm `${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent conversations and reminders.`
+      reply: `Hi! I'm ${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent conversations and reminders.`
     },
     {
       pattern: /heritage.*oladoye/i,
