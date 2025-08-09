@@ -15,13 +15,23 @@
 
   <!-- 💬 Main Chat Area -->
   <main class="chat-container">
+    <!-- Chat messages will appear here -->
     <section id="chat-box" class="chat-box" aria-live="polite"></section>
 
+    <!-- 🤔 Thinking Indicator -->
+    <section id="thinking-indicator" class="thinking" style="display: none;">
+      <div class="dots">
+        <span>.</span><span>.</span><span>.</span>
+      </div>
+    </section>
+
+    <!-- 📝 Input Area -->
     <section class="input-area">
       <textarea id="user-input" rows="3" placeholder="Type your message..." aria-label="User input"></textarea>
       <button onclick="sendMessage()" aria-label="Send message">Send</button>
     </section>
 
+    <!-- 🎛️ Controls Area -->
     <section class="controls-area">
       <button id="mute-toggle" onclick="toggleMute()" aria-label="Toggle voice">🔊 Voice: On</button>
 
@@ -32,6 +42,7 @@
       <button onclick="resetChat()" aria-label="Reset chat">🔄 Reset Chat</button>
     </section>
 
+    <!-- 📥 Download Area -->
     <section class="download-area">
       <button onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
       <button onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
