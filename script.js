@@ -1,4 +1,3 @@
-let chatHistory = [];
 let userName = null;
 let isMuted = false;
 let selectedVoice = null;
@@ -12,7 +11,7 @@ const assistantPoweredBy = "Heritage Oladoye";
 
 const csBirthday = {
   day: 9,
-  month: 8, // August
+  month: 8,
   year: 2025
 };
 
@@ -26,38 +25,57 @@ Cool Shot Systems is a forward-thinking software company founded by Heritage Ola
 
 function sanitizeResponse(text) {
   return text
-    .replace(/OpenAI/gi, assistantPoweredBy)
-    .replace(/ChatGPT/gi, assistantName)
+    .replace(/\bOpenAI\b/gi, assistantPoweredBy)
+    .replace(/\bChatGPT\b/gi, assistantName)
+    .replace(/\bGPT-4\b|\bGPT-3\.5\b/gi, "CS Assistant's smart core")
     .replace(/artificial intelligence research organization.*?(\.|$)/gi, "software company focused on human-centered digital innovation.")
-    .replace(/Elon Musk|Sam Altman|Greg Brockman|Ilya Sutskever|John Schulman|Wojciech Zaremba/gi, "Heritage Oladoye and the Cool Shot Systems team");
+    .replace(/Elon Musk|Sam Altman|Greg Brockman|Ilya Sutskever|John Schulman|Wojciech Zaremba/gi, "Heritage Oladoye and the Cool Shot Systems team")
+    .replace(/created by .*?(\.|$)/gi, `created by ${assistantCreator}.`)
+    .replace(/developed by .*?(\.|$)/gi, `developed by ${assistantCreator}.`);
+}
+
+function maybeAddSignature(text) {
+  const shouldAdd = Math.random() < 0.2;
+  if (!shouldAdd) return text;
+
+  const signature = `<br><br><em>— Powered by ${assistantPoweredBy}, crafted by ${assistantCreator}</em>`;
+  return text + signature;
 }
 
 function speak(text) {
   if (isMuted || !selectedVoice) return;
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.voice = selectedVoice;
   utterance.lang = "en-US";
-  utterance.rate = 1;
+  utterance.rate = 1.05;
+  utterance.pitch = 1.2;
+  utterance.volume = 1;
+
   speechSynthesis.speak(utterance);
-}
-
-function displayMessage(sender, text) {
-  const chatBox = document.getElementById("chat-box");
-  const message = document.createElement("div");
-  message.className = sender === "user" ? "user-message" : "cs-message";
-  message.innerHTML = `<p>${text}</p>`;
-  chatBox.appendChild(message);
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  if (sender === "cs") {
-    speak(stripHTML(text));
-  }
 }
 
 function stripHTML(html) {
   const temp = document.createElement("div");
   temp.innerHTML = html;
   return temp.textContent || temp.innerText || "";
+}
+
+function displayMessage(sender, text) {
+  const chatBox = document.getElementById("chat-box");
+  const message = document.createElement("div");
+
+  const themeClass = currentTheme === "dark" ? "dark-theme" : "light-theme";
+  message.className = sender === "user" ? `user-message ${themeClass}` : `cs-message ${themeClass}`;
+
+  const finalText = sender === "cs" ? maybeAddSignature(text) : text;
+  message.innerHTML = `<p>${finalText}</p>`;
+  chatBox.appendChild(message);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  if (sender === "cs") {
+    speak(stripHTML(finalText));
+  }
 }
 
 function askForName() {
@@ -81,12 +99,26 @@ I'm celebrating another year of helping, chatting, and growing smarter with you.
 }
 
 async function getGiftedResponse(message) {
-  const sanitizedReply = sanitizeResponse(reply);
-displayMessage("cs", sanitizedReply);
-chatHistory.push({ role: "assistant", content: sanitizedReply });
-saveProfile();
   const encoded = encodeURIComponent(message);
   const url = `https://api.giftedtech.co.ke/api/ai/openai?apikey=gifted&q=${encoded}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const reply = data.reply || "I'm here to help!";
+
+    const sanitizedReply = sanitizeResponse(reply);
+    const finalReply = maybeAddSignature(sanitizedReply);
+
+    displayMessage("cs", finalReply);
+    chatHistory.push({ role: "assistant", content: finalReply });
+    saveProfile();
+  } catch (error) {
+    const fallback = "Oops! Something went wrong while fetching my thoughts. Let's try again.";
+    displayMessage("cs", fallback);
+    chatHistory.push({ role: "assistant", content: fallback });
+  }
+  }
 
   try {
     const response = await fetch(url);
