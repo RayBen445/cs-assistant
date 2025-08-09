@@ -290,7 +290,7 @@ function handleIdentity(text) {
     allHistory[todayKey] = chatHistory;
     localStorage.setItem("csChatHistory", JSON.stringify(allHistory));
   }
-    } = await response.json();
+    const } data = await response.json();
     const reply = data.reply || "I'm here to help!";
 
     const sanitizedReply = sanitizeResponse(reply);
