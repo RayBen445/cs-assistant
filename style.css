@@ -59,20 +59,25 @@ body.dark .chat-container {
 /* Input Area */
 .input-area {
   display: flex;
+  justify-content: center; /* ✅ Center horizontally */
+  align-items: center;     /* ✅ Center vertically if needed */
   padding: 10px;
   border-top: 1px solid #ddd;
   background-color: #fafafa;
+  gap: 10px; /* Optional: space between input and button */
 }
 
+textarea.chat-textarea,
 input[type="text"],
 input[type="date"] {
+  width: 100%;
+  max-width: 600px; /* ✅ Prevents edge-to-edge stretching */
   flex: 1;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 6px;
   outline: none;
-  margin-right: 10px;
 }
 
 button {
