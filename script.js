@@ -3,6 +3,8 @@ let userName = null;
 let isMuted = false;
 let selectedVoice = null;
 let currentTheme = "light";
+let goals = [];
+let tasks = [];
 
 function speak(text) {
   if (isMuted || !selectedVoice) return;
@@ -92,6 +94,37 @@ async function sendMessage() {
     return;
   }
 
+  if (/my goal is (.+)/i.test(text)) {
+    const goalText = text.match(/my goal is (.+)/i)[1];
+    goals.push({ text: goalText, added: new Date().toISOString() });
+    const reply = `Got it! I've added your goal: "${goalText}" 🎯`;
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    saveProfile();
+    return;
+  }
+
+  if (/remind me to (.+) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i.test(text)) {
+    const match = text.match(/remind me to (.+) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+    const taskText = match[1];
+    let hour = parseInt(match[2]);
+    const minute = match[3] ? parseInt(match[3]) : 0;
+    const period = match[4];
+
+    if (period === "pm" && hour < 12) hour += 12;
+    if (period === "am" && hour === 12) hour = 0;
+
+    const now = new Date();
+    const taskTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+
+    tasks.push({ text: taskText, time: taskTime.toISOString(), reminded: false });
+    const reply = `Okay! I'll remind you to "${taskText}" at ${taskTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ⏰`;
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    saveProfile();
+    return;
+  }
+
   const reply = await getGiftedResponse(text);
   displayMessage("cs", reply);
   chatHistory.push({ role: "assistant", content: reply });
@@ -107,6 +140,8 @@ function saveProfile() {
   localStorage.setItem("csChatHistory", JSON.stringify(chatHistory));
   localStorage.setItem("csMuted", JSON.stringify(isMuted));
   localStorage.setItem("csTheme", currentTheme);
+  localStorage.setItem("csGoals", JSON.stringify(goals));
+  localStorage.setItem("csTasks", JSON.stringify(tasks));
 }
 
 function resetChat() {
@@ -217,6 +252,19 @@ function populateVoiceOptions() {
   selectedVoice = femaleVoice || maleVoice || null;
 }
 
+setInterval(() => {
+  const now = new Date();
+  tasks.forEach(task => {
+    const taskTime = new Date(task.time);
+    if (!task.reminded && now >= taskTime) {
+      displayMessage("cs", `⏰ Reminder: ${task.text}`);
+      chatHistory.push({ role: "assistant", content: `Reminder: ${task.text}` });
+      task.reminded = true;
+      saveProfile();
+    }
+  });
+}, 60000); // check every minute
+
 window.addEventListener("load", () => {
   speechSynthesis.onvoiceschanged = populateVoiceOptions;
 
@@ -225,6 +273,8 @@ window.addEventListener("load", () => {
   const savedHistory = localStorage.getItem("csChatHistory");
   const savedMuted = localStorage.getItem("csMuted");
   const savedTheme = localStorage.getItem("csTheme");
+  const savedGoals = localStorage.getItem("csGoals");
+  const savedTasks = localStorage.getItem("csTasks");
 
   if (savedName) userName = savedName;
   if (savedHistory) chatHistory = JSON.parse(savedHistory);
@@ -235,6 +285,8 @@ window.addEventListener("load", () => {
     const themeBtn = document.getElementById("theme-toggle");
     if (themeBtn) themeBtn.textContent = currentTheme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode";
   }
+  if (savedGoals) goals = JSON.parse(savedGoals);
+  if (savedTasks) tasks = JSON.parse(savedTasks);
 
   if (chatHistory.length > 0) {
     chatHistory.forEach(entry => {
