@@ -30,6 +30,10 @@ body.dark {
   flex-direction: column;
 }
 
+body.dark .chat-container {
+  background-color: #2c2c2c;
+}
+
 /* Chat Box */
 .chat-box {
   height: 400px;
@@ -48,18 +52,19 @@ body.dark {
   background-color: #fafafa;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="date"] {
   flex: 1;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 6px;
   outline: none;
+  margin-right: 10px;
 }
 
 button {
   padding: 10px 20px;
-  margin-left: 10px;
   font-size: 16px;
   background-color: #0078d4;
   color: white;
@@ -97,6 +102,16 @@ button:hover {
   text-align: left;
 }
 
+body.dark .user-message {
+  background-color: #3a5a40;
+  color: #fff;
+}
+
+body.dark .cs-message {
+  background-color: #444;
+  color: #fff;
+}
+
 .cs-name {
   font-weight: bold;
   color: #0078d4;
@@ -126,7 +141,7 @@ button:hover {
   max-width: 80%;
 }
 
-/.cs-message .bubble {
+.cs-message .bubble {
   background-color: #f0f0f0;
 }
 
@@ -193,7 +208,8 @@ button:hover {
 
 .download-area button,
 .controls-area button,
-.controls-area select {
+.controls-area select,
+.controls-area input[type="file"] {
   padding: 8px 14px;
   font-size: 15px;
   background-color: #0078d4;
