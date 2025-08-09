@@ -152,8 +152,8 @@ function handleIdentity(text) {
       reply: `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through sma[...]
     },
     {
-      pattern: /tell.*me.*about.*yourself/i,
-      reply: `Hi! I'm ${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent conversations and reminders.`
+      pattern: /tell\.me\.about.*yourself/i,
+      reply: `Hi! I'm `${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent conversations and reminders.`
     },
     {
       pattern: /heritage.*oladoye/i,
