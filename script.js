@@ -333,11 +333,6 @@ function downloadPDF() {
     return;
   }
 
-  const reply = await getGiftedResponse(text);
-  displayMessage("cs", reply);
-  chatHistory.push({ role: "assistant", content: reply });
-  saveProfile();
-}
 
 function saveProfile() {
   localStorage.setItem("csUserName", userName);
@@ -464,6 +459,12 @@ setInterval(() => {
   });
 }, 60000); // check every minute
 
+  const reply = await getGiftedResponse(text);
+  displayMessage("cs", reply);
+  chatHistory.push({ role: "assistant", content: reply });
+  saveProfile();
+}
+
 window.addEventListener("load", () => {
   speechSynthesis.onvoiceschanged = populateVoiceOptions;
   populateVoiceOptions(); // Ensure voices load immediately
@@ -514,11 +515,6 @@ const hour = new Date().getHours();
 
   askForName();
 });
-
-
-  const response = await getGiftedResponse(text);
-  respond(response);
-}
 
 // Expose functions globally
 window.sendMessage = sendMessage;
