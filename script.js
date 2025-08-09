@@ -249,7 +249,7 @@ function downloadPDF() {
     return;
   }
 
-  const { jsPDF } async function sendMessage() {
+ async function sendMessage() {
   const input = document.getElementById("user-input");
   const text = input.value.trim();
   if (!text) return;
@@ -290,7 +290,7 @@ function resetChat() {
   localStorage.clear();
   location.reload();
 }
-  = window.jspdf;
+ const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   let y = 10;
 
