@@ -7,30 +7,33 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="light">
-  <div class="chat-container">
-    <div id="chat-box" class="chat-box"></div>
+  <main class="chat-container">
+    <section id="chat-box" class="chat-box" aria-live="polite"></section>
 
-    <div class="input-area">
-      <input type="text" id="user-input" placeholder="Type your message..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
+    <section class="input-area">
+      <input type="text" id="user-input" placeholder="Type your message..." aria-label="User input" />
+      <button onclick="sendMessage()" aria-label="Send message">Send</button>
+    </section>
 
-    <div class="controls-area">
-      <button id="mute-toggle" onclick="toggleMute()">🔊 Voice: On</button>
-      <select id="voice-selector"></select>
-      <button id="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
-      <button onclick="resetChat()">🔄 Reset Chat</button>
-    </div>
+    <section class="controls-area">
+      <button id="mute-toggle" onclick="toggleMute()" aria-label="Toggle voice">🔊 Voice: On</button>
 
-    <div class="download-area">
-      <button onclick="downloadChat()">Download as TXT</button>
-      <button onclick="downloadPDF()">Download as PDF</button>
-      <button onclick="generateShareLink()">Get Shareable Link</button>
-    </div>
-  </div>
+      <label for="voice-selector">Voice:</label>
+      <select id="voice-selector" aria-label="Select voice"></select>
+
+      <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️ Light Mode</button>
+      <button onclick="resetChat()" aria-label="Reset chat">🔄 Reset Chat</button>
+    </section>
+
+    <section class="download-area">
+      <button onclick="downloadChat()" aria-label="Download chat as text">Download as TXT</button>
+      <button onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
+      <button onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
+    </section>
+  </main>
 
   <!-- jsPDF CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
-</html>
+        </html>
