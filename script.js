@@ -272,17 +272,10 @@ function handleIdentity(text) {
   }
 
   // 🌐 Fallback to external API
-  try {
-    const encoded = encodeURIComponent(text);
-    const url = `https://api.giftedtech.co.ke/api/ai/openai?apikey=gifted&q=${encoded}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    const reply = data.reply || "I'm here to help!";
-    return respond(reply);
-  } catch (error) {
-    console.error("API error:", error);
-    return respond("Oops! Something went wrong while contacting the AI.");
-  }
+    getGiftedResponse(text).then(respond).catch(error => {
+  console.error("API error:", error);
+  respond("Oops! Something went wrong while contacting the AI.");
+});
 
   // 🧠 Helper to respond and save
   function respond(reply) {
