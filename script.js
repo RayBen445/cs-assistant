@@ -117,7 +117,7 @@ async function getGiftedResponse(message) {
     const response = await fetch(url);
     const raw = await response.text();
     const data = JSON.parse(raw);
-    const reply = data.reply || data.message || data.text || JSON.stringify(data);
+    const reply = data.result;
     return reply;
   } catch (error) {
     console.error("API error:", error);
