@@ -6,13 +6,22 @@
   <title>CS Assistant</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="light">
   <div class="chat-container">
     <div id="chat-box" class="chat-box"></div>
+
     <div class="input-area">
       <input type="text" id="user-input" placeholder="Type your message..." />
       <button onclick="sendMessage()">Send</button>
     </div>
+
+    <div class="controls-area">
+      <button id="mute-toggle" onclick="toggleMute()">🔊 Voice: On</button>
+      <select id="voice-selector"></select>
+      <button id="theme-toggle" onclick="toggleTheme()">☀️ Light Mode</button>
+      <button onclick="resetChat()">🔄 Reset Chat</button>
+    </div>
+
     <div class="download-area">
       <button onclick="downloadChat()">Download as TXT</button>
       <button onclick="downloadPDF()">Download as PDF</button>
@@ -24,4 +33,4 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="module" src="script.js"></script>
 </body>
-</html>
+    </html>
