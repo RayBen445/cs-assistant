@@ -63,30 +63,24 @@ body.dark .chat-container {
   left: 0;
   right: 0;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center; /* ✅ Center horizontally */
-  align-items: center;     /* ✅ Center vertically if needed */
+  align-items: center;
   padding: 10px;
+  background-color: #fff;
   border-top: 1px solid #ddd;
-  background-color: #fafafa;
-  gap: 10px; /* Optional: space between input and button */
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
   z-index: 1000;
 }
 
-textarea.chat-textarea,
 input[type="text"],
 input[type="date"] {
-  width: 100%;
-  max-width: 600px; /* ✅ Prevents edge-to-edge stretching */
-  min-height: 50px;
   flex: 1;
   padding: 12px;
   font-size: 16px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 20px;
   outline: none;
   box-sizing: border-box;
+  min-width: 0; /* ✅ Prevents overflow in flex container */
 }
 
 button {
