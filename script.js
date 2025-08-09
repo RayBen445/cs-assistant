@@ -4,6 +4,7 @@ let selectedVoice = null;
 let currentTheme = "light";
 let goals = [];
 let tasks = [];
+let chatHistory = [];
 
 const assistantName = "CS Assistant";
 const assistantCreator = "Cool Shot Systems";
@@ -78,6 +79,10 @@ function displayMessage(sender, text) {
   }
 }
 
+function saveProfile() {
+  // Optional: Save chat history or user profile to localStorage
+}
+
 function askForName() {
   const question = "Before we begin, may I know your name? 😊";
   displayMessage("cs", question);
@@ -114,18 +119,10 @@ async function getGiftedResponse(message) {
     chatHistory.push({ role: "assistant", content: finalReply });
     saveProfile();
   } catch (error) {
-    const fallback = "Oops! Something went wrong while fetching my thoughts. Let's try again.";
+    console.error("API error:", error);
+    const fallback = "Oops! Something went wrong while contacting the AI.";
     displayMessage("cs", fallback);
     chatHistory.push({ role: "assistant", content: fallback });
-  }
-  
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    return data.result || "Sorry, I couldn't understand that.";
-  } catch (error) {
-    console.error("API error:", error);
-    return "Oops! Something went wrong while contacting the AI.";
   }
 }
 
@@ -164,20 +161,21 @@ async function sendMessage() {
   }
 
   if (/who.*created.*you/i.test(text) || /who.*developed.*you/i.test(text) || /tell.*me.*about.*your.*creator/i.test(text) || /what.*is.*your.*origin/i.test(text) || /where.*were.*you.*made/i.test(text)) {
-  const reply = `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through smart conversations.`;
-  displayMessage("cs", reply);
-  chatHistory.push({ role: "assistant", content: reply });
-  saveProfile();
-  return;
-}
+    const reply = `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through smart conversations.`;
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    saveProfile();
+    return;
+  }
 
-if (/tell.*me.*about.*yourself/i.test(text)) {
-  const reply = `Hi! I'm ${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent, and engaging conversations. Whether you're solving problems or just chatting, I'm here to make your day brighter. 🌟`;
-  displayMessage("cs", reply);
-  chatHistory.push({ role: "assistant", content: reply });
-  saveProfile();
-  return;
-}
+  if (/tell.*me.*about.*yourself/i.test(text)) {
+    const reply = `Hi! I'm ${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent, and engaging conversations. Whether you're solving problems or just chatting, I'm here to make your day brighter. 🌟`;
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    saveProfile();
+    return;
+  }
+
   if (/heritage.*oladoye/i.test(text)) {
     displayMessage("cs", aboutHeritageOladoye);
     chatHistory.push({ role: "assistant", content: aboutHeritageOladoye });
@@ -191,6 +189,9 @@ if (/tell.*me.*about.*yourself/i.test(text)) {
     saveProfile();
     return;
   }
+
+  await getGiftedResponse(text);
+}
 
   if (/my goal is (.+)/i.test(text)) {
     const goalText = text.match(/my goal is (.+)/i)[1];
