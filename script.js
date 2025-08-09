@@ -122,8 +122,6 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
-  // Your logic continues here...
-}
   // 🗣️ Show user message
   displayMessage("user", text);
   chatHistory.push({ role: "user", content: text });
@@ -134,6 +132,11 @@ async function sendMessage() {
     userName = text;
     return respond(`Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`);
   }
+
+  // 🧠 Continue with assistant response logic...
+  const response = await getAssistantReply(text);
+  displayMessage("assistant", response);
+}
 
   // 🤖 Identity & origin questions
   const identityPatterns = [
