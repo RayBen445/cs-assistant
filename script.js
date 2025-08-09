@@ -1,5 +1,16 @@
 let chatHistory = [];
 let userName = null;
+let isMuted = false;
+let selectedVoice = null;
+
+function speak(text) {
+  if (isMuted || !selectedVoice) return;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = selectedVoice;
+  utterance.lang = "en-US";
+  utterance.rate = 1;
+  speechSynthesis.speak(utterance);
+}
 
 function displayMessage(sender, text) {
   const chatBox = document.getElementById("chat-box");
@@ -8,6 +19,10 @@ function displayMessage(sender, text) {
   message.innerHTML = `<p>${text}</p>`;
   chatBox.appendChild(message);
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  if (sender === "cs") {
+    speak(stripHTML(text));
+  }
 }
 
 function stripHTML(html) {
@@ -141,7 +156,46 @@ function generateShareLink() {
   });
 }
 
+function toggleMute() {
+  isMuted = !isMuted;
+  const button = document.getElementById("mute-toggle");
+  button.textContent = isMuted ? "🔇 Voice: Off" : "🔊 Voice: On";
+}
+
+function populateVoiceOptions() {
+  const voices = speechSynthesis.getVoices();
+  const maleVoice = voices.find(v => /male/i.test(v.name) || /David|Alex|Google UK English Male/.test(v.name));
+  const femaleVoice = voices.find(v => /female/i.test(v.name) || /Samantha|Google UK English Female/.test(v.name));
+
+  const selector = document.getElementById("voice-selector");
+  selector.innerHTML = "";
+
+  if (maleVoice) {
+    const option = document.createElement("option");
+    option.value = "male";
+    option.textContent = "Male Voice";
+    selector.appendChild(option);
+  }
+
+  if (femaleVoice) {
+    const option = document.createElement("option");
+    option.value = "female";
+    option.textContent = "Female Voice";
+    selector.appendChild(option);
+  }
+
+  selector.onchange = () => {
+    const choice = selector.value;
+    selectedVoice = choice === "male" ? maleVoice : femaleVoice;
+  };
+
+  // Default to female if available
+  selectedVoice = femaleVoice || maleVoice || null;
+}
+
 window.addEventListener("load", () => {
+  speechSynthesis.onvoiceschanged = populateVoiceOptions;
+
   const params = new URLSearchParams(window.location.search);
   const encodedChat = params.get("chat");
 
@@ -181,3 +235,4 @@ window.sendMessage = sendMessage;
 window.downloadChat = downloadChat;
 window.downloadPDF = downloadPDF;
 window.generateShareLink = generateShareLink;
+window.toggleMute = toggleMute;
