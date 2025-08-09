@@ -179,7 +179,6 @@ async function sendMessage() {
   const response = await getGiftedResponse(text);
   respond(response);
 }
-
   // 🔄 Undo last goal
   if (/undo.*last.*goal/i.test(text)) {
     if (goals.length === 0) {
@@ -188,7 +187,6 @@ async function sendMessage() {
     const removed = goals.pop();
     return respond(`✅ Removed your last goal: "${removed.text}"`);
   }
-
   // 📋 Show saved goals
   if (/show.*my.*goals/i.test(text)) {
     if (goals.length === 0) {
