@@ -32,7 +32,21 @@ function followUpPrompt() {
   return prompts[Math.floor(Math.random() * prompts.length)];
 }
 
-function sendMessage() {
+async function getGiftedResponse(message) {
+  const encoded = encodeURIComponent(message);
+  const url = `https://api.giftedtech.co.ke/api/ai/openai?apikey=gifted&q=${encoded}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.result || "Sorry, I couldn't understand that.";
+  } catch (error) {
+    console.error("API error:", error);
+    return "Oops! Something went wrong while contacting the AI.";
+  }
+}
+
+async function sendMessage() {
   const input = document.getElementById("user-input");
   const text = input.value.trim();
   if (!text) return;
@@ -60,7 +74,7 @@ function sendMessage() {
     return;
   }
 
-  const reply = `Thanks for sharing, ${userName}. That's interesting! 🤔`;
+  const reply = await getGiftedResponse(text);
   displayMessage("cs", reply);
   chatHistory.push({ role: "assistant", content: reply });
 
