@@ -6,6 +6,10 @@ let currentTheme = "light";
 let goals = [];
 let tasks = [];
 
+const assistantName = "CS Assistant";
+const assistantCreator = "Cool Shot Systems";
+const assistantPoweredBy = "Heritage Oladoye";
+
 function speak(text) {
   if (isMuted || !selectedVoice) return;
   const utterance = new SpeechSynthesisUtterance(text);
@@ -75,7 +79,7 @@ async function sendMessage() {
 
   if (!userName) {
     userName = text;
-    const reply = `Nice to meet you, ${userName}! 😊 What would you like to talk about today?`;
+    const reply = `Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`;
     displayMessage("cs", reply);
     chatHistory.push({ role: "assistant", content: reply });
     saveProfile();
@@ -83,9 +87,9 @@ async function sendMessage() {
   }
 
   if (/what.*is.*your.*name/i.test(text) || /i.*(would|will).*like.*to.*know.*your.*name/i.test(text)) {
-  const reply = "My name is <strong>CS Assistant</strong> 🤖 — your friendly companion built by Cool Shot Systems and powered by Heritage Oladoye. 💡";
+  const reply = `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡`;
   displayMessage("cs", reply);
-  chatHistory.push({ role: "assistant", content: stripHTML(reply));
+  chatHistory.push({ role: "assistant", content: stripHTML(reply) });
   saveProfile();
   return;
   }
