@@ -102,6 +102,7 @@ I'm celebrating another year of helping, chatting, and growing smarter with you.
     saveProfile();
   }
 }
+
 async function getGiftedResponse(message) {
   const encoded = encodeURIComponent(message);
   const url = `https://api.giftedtech.co.ke/api/ai/openai?apikey=gifted&q=${encoded}`;
@@ -114,7 +115,6 @@ async function getGiftedResponse(message) {
     const data = JSON.parse(raw);
     console.log("Parsed response:", data);
 
-    // Try different fields
     const reply = data.reply || data.message || data.text || JSON.stringify(data);
     return reply;
   } catch (error) {
@@ -123,25 +123,11 @@ async function getGiftedResponse(message) {
   }
 }
 
-async function sendMessage() {
-  const input = document.getElementById("user-input");
-  const text = input.value.trim();
-  if (!text) return;
-
-  // 🗣️ Show user message
-  displayMessage("user", text);
-  chatHistory.push({ role: "user", content: text });
-  input.value = "";
-
-  // 👋 First-time name capture
-  if (!userName) {
-    userName = text;
-    return respond(`Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`);
-  }
-
-  // 🧠 Continue with assistant response logic...
-  const response = await getAssistantReply(text);
-  displayMessage("assistant", response);
+function respond(reply) {
+  const sanitized = sanitizeResponse(reply);
+  const finalReply = maybeAddSignature(sanitized);
+  displayMessage("cs", finalReply);
+  chatHistory.push({ role: "assistant", content: stripHTML(finalReply) });
 }
 
 function handleIdentity(text) {
@@ -161,15 +147,38 @@ function handleIdentity(text) {
       return item.reply;
     }
   }
-  return null; // No match found
+  return null;
 }
-  // 🎯 Goal tracking
+
+async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  displayMessage("user", text);
+  chatHistory.push({ role: "user", content: text });
+  input.value = "";
+
+  if (!userName) {
+    userName = text;
+    return respond(`Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`);
+  }
+
+  const identityReply = handleIdentity(text);
+  if (identityReply) {
+    return respond(identityReply);
+  }
+
   const goalMatch = text.match(/my goal is (.+)/i);
   if (goalMatch) {
     const goalText = goalMatch[1];
     goals.push({ text: goalText, added: new Date().toISOString() });
     return respond(`Got it! I've added your goal: "${goalText}" 🎯`);
   }
+
+  const response = await getGiftedResponse(text);
+  respond(response);
+}
 
   // 🔄 Undo last goal
   if (/undo.*last.*goal/i.test(text)) {
