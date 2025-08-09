@@ -138,7 +138,7 @@ async function sendMessage() {
   displayMessage("assistant", response);
 }
 
-  // 🤖 Identity & origin questions
+function handleIdentity(text) {
   const identityPatterns = [
     { pattern: /what\s+is\s+your\s+name/i, reply: `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡` },
     { pattern: /i\s+(would|will)\s+like\s+to\s+know\s+your.*name/i, reply: `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡` },
@@ -149,10 +149,15 @@ async function sendMessage() {
     { pattern: /heritage.*oladoye/i, reply: aboutHeritageOladoye },
     { pattern: /cool.*shot.*systems/i, reply: aboutCoolShotSystems }
   ];
+
   for (const item of identityPatterns) {
-    if (item.pattern.test(text)) return respond(item.reply);
+    if (item.pattern.test(text)) {
+      return item.reply;
+    }
   }
 
+  return null; // No match found
+}
   // 🎯 Goal tracking
   const goalMatch = text.match(/my goal is (.+)/i);
   if (goalMatch) {
