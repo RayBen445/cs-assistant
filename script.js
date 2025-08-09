@@ -311,3 +311,13 @@ window.addEventListener("load", () => {
 
   askForName();
 });
+
+window.sendMessage = sendMessage;
+window.toggleMute = toggleMute;
+window.toggleTheme = toggleTheme;
+window.resetChat = resetChat;
+window.downloadChat = downloadChat;
+window.downloadPDF = downloadPDF;
+window.generateShareLink = generateShareLink;
+
+});
