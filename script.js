@@ -190,9 +190,6 @@ async function sendMessage() {
     return;
   }
 
-  await getGiftedResponse(text);
-}
-
   if (/my goal is (.+)/i.test(text)) {
     const goalText = text.match(/my goal is (.+)/i)[1];
     goals.push({ text: goalText, added: new Date().toISOString() });
@@ -230,7 +227,25 @@ async function sendMessage() {
   saveProfile();
 }
 
-function saveProfile() {
+funcif (/cool.*shot.*systems/i.test(text)) {
+    displayMessage("cs", aboutCoolShotSystems);
+    chatHistory.push({ role: "assistant", content: aboutCoolShotSystems });
+    saveProfile();
+    return;
+  }
+
+  if (/my goal is (.+)/i.test(text)) {
+    const goalText = text.match(/my goal is (.+)/i)[1];
+    goals.push({ text: goalText, added: new Date().toISOString() });
+    const reply = `Got it! I've added your goal: "${goalText}" 🎯`;
+    displayMessage("cs", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    saveProfile();
+    return;
+  }
+
+  await getGiftedResponse(text);
+  }tion saveProfile() {
   localStorage.setItem("csUserName", userName);
   localStorage.setItem("csChatHistory", JSON.stringify(chatHistory));
   localStorage.setItem("csMuted", JSON.stringify(isMuted));
