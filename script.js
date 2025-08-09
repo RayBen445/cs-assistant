@@ -174,10 +174,7 @@ async function sendMessage() {
     const goalText = goalMatch[1];
     goals.push({ text: goalText, added: new Date().toISOString() });
     return respond(`Got it! I've added your goal: "${goalText}" 🎯`);
-  }
-
-  const response = await getGiftedResponse(text);
-  respond(response);
+  
 }
   // 🔄 Undo last goal
   if (/undo.*last.*goal/i.test(text)) {
