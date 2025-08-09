@@ -2,6 +2,7 @@ let chatHistory = [];
 let userName = null;
 let isMuted = false;
 let selectedVoice = null;
+let currentTheme = "light";
 
 function speak(text) {
   if (isMuted || !selectedVoice) return;
@@ -75,6 +76,7 @@ async function sendMessage() {
     const reply = `Nice to meet you, ${userName}! 😊 What would you like to talk about today?`;
     displayMessage("cs", reply);
     chatHistory.push({ role: "assistant", content: reply });
+    saveProfile();
     return;
   }
 
@@ -86,6 +88,7 @@ async function sendMessage() {
     const followUp = followUpPrompt();
     displayMessage("cs", followUp);
     chatHistory.push({ role: "assistant", content: followUp });
+    saveProfile();
     return;
   }
 
@@ -96,6 +99,19 @@ async function sendMessage() {
   const followUp = followUpPrompt();
   displayMessage("cs", followUp);
   chatHistory.push({ role: "assistant", content: followUp });
+  saveProfile();
+}
+
+function saveProfile() {
+  localStorage.setItem("csUserName", userName);
+  localStorage.setItem("csChatHistory", JSON.stringify(chatHistory));
+  localStorage.setItem("csMuted", JSON.stringify(isMuted));
+  localStorage.setItem("csTheme", currentTheme);
+}
+
+function resetChat() {
+  localStorage.clear();
+  location.reload();
 }
 
 function downloadChat() {
@@ -160,6 +176,15 @@ function toggleMute() {
   isMuted = !isMuted;
   const button = document.getElementById("mute-toggle");
   button.textContent = isMuted ? "🔇 Voice: Off" : "🔊 Voice: On";
+  saveProfile();
+}
+
+function toggleTheme() {
+  currentTheme = currentTheme === "light" ? "dark" : "light";
+  document.body.className = currentTheme;
+  const button = document.getElementById("theme-toggle");
+  button.textContent = currentTheme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode";
+  saveProfile();
 }
 
 function populateVoiceOptions() {
@@ -189,30 +214,35 @@ function populateVoiceOptions() {
     selectedVoice = choice === "male" ? maleVoice : femaleVoice;
   };
 
-  // Default to female if available
   selectedVoice = femaleVoice || maleVoice || null;
 }
 
 window.addEventListener("load", () => {
   speechSynthesis.onvoiceschanged = populateVoiceOptions;
 
-  const params = new URLSearchParams(window.location.search);
-  const encodedChat = params.get("chat");
+  // Load profile
+  const savedName = localStorage.getItem("csUserName");
+  const savedHistory = localStorage.getItem("csChatHistory");
+  const savedMuted = localStorage.getItem("csMuted");
+  const savedTheme = localStorage.getItem("csTheme");
 
-  if (encodedChat) {
-    try {
-      const decoded = decodeURIComponent(escape(atob(encodedChat)));
-      const data = JSON.parse(decoded);
-      userName = data.userName;
-      chatHistory = data.chatHistory;
+  if (savedName) userName = savedName;
+  if (savedHistory) chatHistory = JSON.parse(savedHistory);
+  if (savedMuted) isMuted = JSON.parse(savedMuted);
+  if (savedTheme) {
+    currentTheme = savedTheme;
+    document.body.className = currentTheme;
+    const themeBtn = document.getElementById("theme-toggle");
+    if (themeBtn) themeBtn.textContent = currentTheme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode";
+  }
 
-      chatHistory.forEach(entry => {
-        const sender = entry.role === "user" ? "user" : "cs";
-        displayMessage(sender, entry.content);
-      });
-    } catch (e) {
-      console.error("Invalid chat data");
-    }
+  if (chatHistory.length > 0) {
+    chatHistory.forEach(entry => {
+      const sender = entry.role === "user" ? "user" : "cs";
+      displayMessage(sender, entry.content);
+    });
+    const muteBtn = document.getElementById("mute-toggle");
+    if (muteBtn) muteBtn.textContent = isMuted ? "🔇 Voice: Off" : "🔊 Voice: On";
     return;
   }
 
@@ -229,10 +259,3 @@ window.addEventListener("load", () => {
 
   askForName();
 });
-
-// ✅ Expose functions to global scope
-window.sendMessage = sendMessage;
-window.downloadChat = downloadChat;
-window.downloadPDF = downloadPDF;
-window.generateShareLink = generateShareLink;
-window.toggleMute = toggleMute;
