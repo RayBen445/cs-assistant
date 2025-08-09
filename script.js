@@ -120,6 +120,21 @@ async function sendMessage() {
     return;
   }
 
+  if (/who.*created.*you/i.test(text) || /who.*developed.*you/i.test(text) || /tell.*me.*about.*your.*creator/i.test(text) || /what.*is.*your.*origin/i.test(text) || /where.*were.*you.*made/i.test(text)) {
+  const reply = `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through smart conversations.`;
+  displayMessage("cs", reply);
+  chatHistory.push({ role: "assistant", content: reply });
+  saveProfile();
+  return;
+}
+
+if (/tell.*me.*about.*yourself/i.test(text)) {
+  const reply = `Hi! I'm ${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent, and engaging conversations. Whether you're solving problems or just chatting, I'm here to make your day brighter. 🌟`;
+  displayMessage("cs", reply);
+  chatHistory.push({ role: "assistant", content: reply });
+  saveProfile();
+  return;
+}
   if (/heritage.*oladoye/i.test(text)) {
     displayMessage("cs", aboutHeritageOladoye);
     chatHistory.push({ role: "assistant", content: aboutHeritageOladoye });
