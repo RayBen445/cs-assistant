@@ -312,6 +312,7 @@ window.addEventListener("load", () => {
   askForName();
 });
 
+// Expose functions globally
 window.sendMessage = sendMessage;
 window.toggleMute = toggleMute;
 window.toggleTheme = toggleTheme;
@@ -319,5 +320,3 @@ window.resetChat = resetChat;
 window.downloadChat = downloadChat;
 window.downloadPDF = downloadPDF;
 window.generateShareLink = generateShareLink;
-
-});
