@@ -154,11 +154,9 @@ function handleIdentity(text) {
     if (item.pattern.test(text)) {
       return item.reply;
     }
-  }
-
+  
   return null; // No match found
 }
-function handleIdentity(text) {
   // 🎯 Goal tracking
   const goalMatch = text.match(/my goal is (.+)/i);
   if (goalMatch) {
