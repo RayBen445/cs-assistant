@@ -291,12 +291,6 @@ function handleIdentity(text) {
     localStorage.setItem("csChatHistory", JSON.stringify(allHistory));
   }
   
-    const sanitizedReply = sanitizeResponse(reply);
-    const finalReply = maybeAddSignature(sanitizedReply);
-
-    displayMessage("cs", finalReply);
-    chatHistory.push({ role: "assistant", content: finalReply });
-    saveProfile();
   } catch (error) {
     console.error("API error:", error);
     const fallback = "Oops! Something went wrong while contacting the AI.";
