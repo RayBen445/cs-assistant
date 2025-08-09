@@ -24,6 +24,14 @@ const aboutCoolShotSystems = `
 Cool Shot Systems is a forward-thinking software company founded by Heritage Oladoye. It specializes in crafting intelligent, user-centric digital solutions — from mobile platforms to AI-powered assistants. With a focus on creativity, empathy, and excellence, Cool Shot Systems is redefining what smart software feels like.
 `;
 
+function sanitizeResponse(text) {
+  return text
+    .replace(/OpenAI/gi, assistantPoweredBy)
+    .replace(/ChatGPT/gi, assistantName)
+    .replace(/artificial intelligence research organization.*?(\.|$)/gi, "software company focused on human-centered digital innovation.")
+    .replace(/Elon Musk|Sam Altman|Greg Brockman|Ilya Sutskever|John Schulman|Wojciech Zaremba/gi, "Heritage Oladoye and the Cool Shot Systems team");
+}
+
 function speak(text) {
   if (isMuted || !selectedVoice) return;
   const utterance = new SpeechSynthesisUtterance(text);
@@ -73,6 +81,10 @@ I'm celebrating another year of helping, chatting, and growing smarter with you.
 }
 
 async function getGiftedResponse(message) {
+  const sanitizedReply = sanitizeResponse(reply);
+displayMessage("cs", sanitizedReply);
+chatHistory.push({ role: "assistant", content: sanitizedReply });
+saveProfile();
   const encoded = encodeURIComponent(message);
   const url = `https://api.giftedtech.co.ke/api/ai/openai?apikey=gifted&q=${encoded}`;
 
