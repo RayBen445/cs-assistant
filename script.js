@@ -109,7 +109,178 @@ async function getGiftedResponse(message) {
 
   try {
     const response = await fetch(url);
+    const dataasync function sendMessage() {
+  const input = document.getElementById("user-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  // 🗣️ Show user message
+  displayMessage("user", text);
+  chatHistory.push({ role: "user", content: text });
+  input.value = "";
+
+  // 👋 First-time name capture
+  if (!userName) {
+    userName = text;
+    return respond(`Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`);
+  }
+
+  // 🤖 Identity & origin questions
+  const identityPatterns = [
+    { pattern: /what\s+is\s+your\s+name/i, reply: `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡` },
+    { pattern: /i\s+(would|will)\s+like\s+to\s+know\s+your.*name/i, reply: `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡` },
+    { pattern: /who\s+(made|built|developed)\s+you/i, reply: `I was built by Cool Shot Systems, led by Heritage Oladoye—a student of Ladoke Akintola University of Technology. 🎓💡` },
+    { pattern: /who.*created.*you|who.*developed.*you|tell.*me.*about.*your.*creator|what.*is.*your.*origin|where.*were.*you.*made/i,
+      reply: `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through smart conversations.` },
+    { pattern: /tell.*me.*about.*yourself/i, reply: `Hi! I'm ${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent, and engaging conversations. Whether you're solving problems or just chatting, I'm here to make your day brighter. 🌟` },
+    { pattern: /heritage.*oladoye/i, reply: aboutHeritageOladoye },
+    { pattern: /cool.*shot.*systems/i, reply: aboutCoolShotSystems }
+  ];
+  for (const item of identityPatterns) {
+    if (item.pattern.test(text)) return respond(item.reply);
+  }
+
+  // 🎯 Goal tracking
+  const goalMatch = text.match(/my goal is (.+)/i);
+  if (goalMatch) {
+    const goalText = goalMatch[1];
+    goals.push({ text: goalText, added: new Date().toISOString() });
+    return respond(`Got it! I've added your goal: "${goalText}" 🎯`);
+  }
+
+  // 🔄 Undo last goal
+  if (/undo.*last.*goal/i.test(text)) {
+    if (goals.length === 0) {
+      return respond("You don't have any goals to undo. 🎯");
+    }
+    const removed = goals.pop();
+    return respond(`✅ Removed your last goal: "${removed.text}"`);
+  }
+
+  // 📋 Show saved goals
+  if (/show.*my.*goals/i.test(text)) {
+    if (goals.length === 0) {
+      return respond("You haven't set any goals yet. Try saying 'My goal is…' 🎯");
+    }
+    const list = goals.map((g, i) => `${i + 1}. ${g.text}`).join("<br>");
+    return respond(`Here are your goals so far:<br><br>${list}`);
+  }
+
+  // ⏰ Reminder setting
+  const reminderMatch = text.match(/remind me to (.+) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+  if (reminderMatch) {
+    const taskText = reminderMatch[1];
+    let hour = parseInt(reminderMatch[2]);
+    const minute = reminderMatch[3] ? parseInt(reminderMatch[3]) : 0;
+    const period = reminderMatch[4];
+
+    if (period === "pm" && hour < 12) hour += 12;
+    if (period === "am" && hour === 12) hour = 0;
+
+    const now = new Date();
+    const taskTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+
+    tasks.push({ text: taskText, time: taskTime.toISOString(), reminded: false });
+    const timeStr = taskTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return respond(`Okay! I'll remind you to "${taskText}" at ${timeStr} ⏰`);
+  }
+
+  // 🎨 Theme switching
+  const themeMatch = text.match(/set.*theme.*(dark|light|colorful)/i);
+  if (themeMatch) {
+    const theme = themeMatch[1];
+    setTheme(theme);
+    return respond(`Theme changed to <strong>${theme}</strong>! 🎨`);
+  }
+
+  // 📅 List chat history days
+  if (/show.*history|list.*history/i.test(text)) {
+    const history = JSON.parse(localStorage.getItem("csChatHistory")) || {};
+    const dates = Object.keys(history);
+    if (dates.length === 0) {
+      return respond("No chat history found yet.");
+    }
+    const list = dates.map((d, i) => `${i + 1}. ${d}`).join("<br>");
+    return respond(`📅 Here are your saved chat days:<br><br>${list}<br><br>Type "show history for YYYY-MM-DD" to view a specific day.`);
+  }
+
+  // 📜 Show history for a specific day
+  const dayMatch = text.match(/show history for (\d{4}-\d{2}-\d{2})/i);
+  if (dayMatch) {
+    const dateKey = dayMatch[1];
+    const history = JSON.parse(localStorage.getItem("csChatHistory")) || {};
+    const dayChats = history[dateKey];
+    if (!dayChats) {
+      return respond(`No chat history found for ${dateKey}.`);
+    }
+    const chatList = dayChats
+      .map((entry, i) => `${i + 1}. ${entry.role === "user" ? "🧑 You" : "🤖 CS"}: ${entry.content}`)
+      .join("<br>");
+    return respond(`📜 Chat history for <strong>${dateKey}</strong>:<br><br>${chatList}`);
+  }
+
+  // 📤 Export history for a selected day
+  const exportMatch = text.match(/export.*history.*for\s+(\d{4}-\d{2}-\d{2})/i);
+  if (exportMatch) {
+    const dateKey = exportMatch[1];
+    const history = JSON.parse(localStorage.getItem("csChatHistory")) || {};
+    const dayChats = history[dateKey] || [];
+    if (dayChats.length === 0) {
+      return respond(`No chat history found for ${dateKey} to export.`);
+    }
+    const content = dayChats
+      .map(e => `${e.role === "user" ? "You" : "CS"}: ${e.content}`)
+      .join("\n\n");
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const filename = `CS_Chat_${dateKey}.txt`;
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    return respond(`✅ Chat history for <strong>${dateKey}</strong> has been exported as <strong>${filename}</strong>.`);
+  }
+
+  // 🗑️ Delete history for a selected day
+  const deleteMatch = text.match(/delete.*history.*for\s+(\d{4}-\d{2}-\d{2})/i);
+  if (deleteMatch) {
+    const dateKey = deleteMatch[1];
+    const history = JSON.parse(localStorage.getItem("csChatHistory")) || {};
+    if (!history[dateKey]) {
+      return respond(`No chat history found for ${dateKey} to delete.`);
+    }
+    delete history[dateKey];
+    localStorage.setItem("csChatHistory", JSON.stringify(history));
+    return respond(`🗑️ Chat history for <strong>${dateKey}</strong> has been deleted.`);
+  }
+
+  // 🌐 Fallback to external API
+  try {
+    const encoded = encodeURIComponent(text);
+    const url = `https://api.giftedtech.co.ke/api/ai/openai?apikey=gifted&q=${encoded}`;
+    const response = await fetch(url);
     const data = await response.json();
+    const reply = data.reply || "I'm here to help!";
+    return respond(reply);
+  } catch (error) {
+    console.error("API error:", error);
+    return respond("Oops! Something went wrong while contacting the AI.");
+  }
+
+  // 🧠 Helper to respond and save
+  function respond(reply) {
+    const sanitized = sanitizeResponse(reply);
+    const finalReply = maybeAddSignature(sanitized);
+    displayMessage("cs", finalReply);
+    chatHistory.push({ role: "assistant", content: stripHTML(finalReply) });
+
+    // 💾 Save chat history by date
+    const todayKey = new Date().toISOString().split("T")[0];
+    const allHistory = JSON.parse(localStorage.getItem("csChatHistory")) || {};
+    allHistory[todayKey] = chatHistory;
+    localStorage.setItem("csChatHistory", JSON.stringify(allHistory));
+  }
+    } = await response.json();
     const reply = data.reply || "I'm here to help!";
 
     const sanitizedReply = sanitizeResponse(reply);
@@ -126,114 +297,7 @@ async function getGiftedResponse(message) {
   }
 }
 
-async function sendMessage() {
-  const input = document.getElementById("user-input");
-  const text = input.value.trim();
-  if (!text) return;
-
-  displayMessage("user", text);
-  chatHistory.push({ role: "user", content: text });
-  input.value = "";
-
-  if (!userName) {
-    userName = text;
-    const reply = `Nice to meet you, ${userName}! 😊 I'm ${assistantName}. What would you like to talk about today?`;
-    displayMessage("cs", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    saveProfile();
-    return;
-  }
-
-  if (/what.is.your.name/i.test(text) || /i.(would|will).like.to.know.your.*name/i.test(text)) {
-    const reply = `My name is <strong>${assistantName}</strong> 🤖 — your friendly companion built by ${assistantCreator} and powered by ${assistantPoweredBy}. 💡`;
-    displayMessage("cs", reply);
-    chatHistory.push({ role: "assistant", content: stripHTML(reply) });
-    saveProfile();
-    return;
-  }
-
-  if (/who.(made|built|developed).you/i.test(text)) {
-    const reply = "I was built by Cool Shot Systems, led by Heritage Oladoye—a student of Ladoke Akintola University of Technology. 🎓💡";
-    displayMessage("cs", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    saveProfile();
-    return;
-  }
-
-  if (/who.*created.*you/i.test(text) || /who.*developed.*you/i.test(text) || /tell.*me.*about.*your.*creator/i.test(text) || /what.*is.*your.*origin/i.test(text) || /where.*were.*you.*made/i.test(text)) {
-    const reply = `${assistantName} was created by ${assistantPoweredBy}, under the leadership of ${assistantCreator}. 🎉 I was born on August 9, 2025, to help people connect, learn, and grow through smart conversations.`;
-    displayMessage("cs", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    saveProfile();
-    return;
-  }
-
-  if (/tell.*me.*about.*yourself/i.test(text)) {
-    const reply = `Hi! I'm ${assistantName}, your friendly assistant built by ${assistantCreator} and powered by ${assistantPoweredBy}. I specialize in helpful, intelligent, and engaging conversations. Whether you're solving problems or just chatting, I'm here to make your day brighter. 🌟`;
-    displayMessage("cs", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    saveProfile();
-    return;
-  }
-
-  if (/heritage.*oladoye/i.test(text)) {
-    displayMessage("cs", aboutHeritageOladoye);
-    chatHistory.push({ role: "assistant", content: aboutHeritageOladoye });
-    saveProfile();
-    return;
-  }
-
-  if (/cool.*shot.*systems/i.test(text)) {
-    displayMessage("cs", aboutCoolShotSystems);
-    chatHistory.push({ role: "assistant", content: aboutCoolShotSystems });
-    saveProfile();
-    return;
-  }
-
-  if (/my goal is (.+)/i.test(text)) {
-    const goalText = text.match(/my goal is (.+)/i)[1];
-    goals.push({ text: goalText, added: new Date().toISOString() });
-    const reply = `Got it! I've added your goal: "${goalText}" 🎯`;
-    displayMessage("cs", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    saveProfile();
-    return;
-  }
-
-  if (/remind me to (.+) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i.test(text)) {
-    const match = text.match(/remind me to (.+) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
-    const taskText = match[1];
-    let hour = parseInt(match[2]);
-    const minute = match[3] ? parseInt(match[3]) : 0;
-    const period = match[4];
-
-    if (period === "pm" && hour < 12) hour += 12;
-    if (period === "am" && hour === 12) hour = 0;
-
-    const now = new Date();
-    const taskTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
-
-    tasks.push({ text: taskText, time: taskTime.toISOString(), reminded: false });
-    const reply = `Okay! I'll remind you to "${taskText}" at ${taskTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ⏰`;
-    displayMessage("cs", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    saveProfile();
-    return;
-  }
-
-  
-}
-
-function resetChat() {
-  localStorage.clear();
-  location.reload();
-}
-
-function downloadChat() {
-  let content = "CS Assistant Chat History\n\n";
-  chatHistory.forEach(entry => {
-    const role = entry.role === "user" ? userName || "User" : "CS";
-    content += `${role}: ${entry.content}\n`;
+   content += `${role}: ${entry.content}\n`;
   });
 
   const blob = new Blob([content], { type: "text/plain" });
