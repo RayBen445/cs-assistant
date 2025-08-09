@@ -337,7 +337,7 @@ window.addEventListener("load", () => {
   }
 
   checkBirthday(); // 🎂 Birthday check on load
-});
+}
 
 const hour = new Date().getHours();
   let greeting = "Hi there";
