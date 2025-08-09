@@ -526,3 +526,4 @@ window.resetChat = resetChat;
 window.downloadChat = downloadChat;
 window.downloadPDF = downloadPDF;
 window.generateShareLink = generateShareLink;
+});
