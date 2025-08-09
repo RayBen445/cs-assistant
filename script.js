@@ -518,6 +518,11 @@ const hour = new Date().getHours();
   askForName();
 });
 
+
+  const response = await getGiftedResponse(text);
+  respond(response);
+}
+
 // Expose functions globally
 window.sendMessage = sendMessage;
 window.toggleMute = toggleMute;
