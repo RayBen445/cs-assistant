@@ -40,12 +40,12 @@ function askForName() {
   chatHistory.push({ role: "assistant", content: question });
 }
 
-function followUpPrompt() {
-  const prompts = [
-    "Would you like to know more?",
-    "Should I explain that further?",
-    "Want to dive deeper into that?",
-    "Is there anything else you're curious about?"
+//function followUpPrompt() {
+//  const prompts = [
+  //  "Would you like to know more?",
+  //  "Should I explain that further?",
+//    "Want to dive deeper into that?",
+ //   "Is there anything else you're curious about?"
   ];
   return prompts[Math.floor(Math.random() * prompts.length)];
 }
@@ -80,6 +80,14 @@ async function sendMessage() {
     chatHistory.push({ role: "assistant", content: reply });
     saveProfile();
     return;
+  }
+
+  if (/what.*is.*your.*name/i.test(text) || /i.*(would|will).*like.*to.*know.*your.*name/i.test(text)) {
+  const reply = "My name is <strong>CS Assistant</strong> 🤖 — your friendly companion built by Cool Shot Systems and powered by Heritage Oladoye. 💡";
+  displayMessage("cs", reply);
+  chatHistory.push({ role: "assistant", content: stripHTML(reply));
+  saveProfile();
+  return;
   }
 
   if (/who.*(made|built|developed).*you/i.test(text)) {
@@ -129,10 +137,10 @@ async function sendMessage() {
   displayMessage("cs", reply);
   chatHistory.push({ role: "assistant", content: reply });
 
-  const followUp = followUpPrompt();
-  displayMessage("cs", followUp);
-  chatHistory.push({ role: "assistant", content: followUp });
-  saveProfile();
+ // const followUp = followUpPrompt();
+//  displayMessage("cs", followUp);
+ // chatHistory.push({ role: "assistant", content: followUp });
+//  saveProfile();
 }
 
 function saveProfile() {
@@ -266,7 +274,11 @@ setInterval(() => {
 }, 60000); // check every minute
 
 window.addEventListener("load", () => {
+  if (speechSynthesis.getVoices().length === 0) {
   speechSynthesis.onvoiceschanged = populateVoiceOptions;
+} else {
+  populateVoiceOptions();
+  }
 
   // Load profile
   const savedName = localStorage.getItem("csUserName");
