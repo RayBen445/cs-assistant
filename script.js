@@ -511,7 +511,7 @@ window.addEventListener("load", () => {
 // <textarea id="user-input" rows="3" placeholder="Type your message..."></textarea>
 
 // Context menu for input actions
-function showCSMessageMenu(event, messageText,
+function showCSMessageMenu(event, messageText,) {
   let menu = document.getElementById("cs-context-menu");
   if (!menu) {
     menu = document.createElement("div");
