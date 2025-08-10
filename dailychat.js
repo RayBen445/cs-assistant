@@ -23,13 +23,17 @@ function restoreOrStartNewChat() {
   showTodayLabel();
 }
 
-// 🗨️ Greet the user
+// 🗨️ Greet the user with voice
 function greetUser() {
   const chatBox = document.getElementById("chat-box");
   const msg = document.createElement("div");
   msg.className = "cs-message";
   msg.textContent = "CS Assistant: Good morning! Before we begin, may I know your name?";
   chatBox.appendChild(msg);
+
+  const utterance = new SpeechSynthesisUtterance("Good morning! Before we begin, may I know your name?");
+  utterance.voice = speechSynthesis.getVoices()[0];
+  speechSynthesis.speak(utterance);
 }
 
 // 🧠 Handle user input for name
@@ -51,9 +55,13 @@ function respondWithGreeting(name) {
   msg.className = "cs-message";
   msg.textContent = `CS Assistant: Nice to meet you, ${name}! I'm here to help you today.`;
   chatBox.appendChild(msg);
+
+  const utterance = new SpeechSynthesisUtterance(`Nice to meet you, ${name}! I'm here to help you today.`);
+  utterance.voice = speechSynthesis.getVoices()[0];
+  speechSynthesis.speak(utterance);
 }
 
-// 🕒 Save chat message under today's date
+// 💬 Save chat message under today's date
 function saveChat(message) {
   const today = getToday();
   let history = JSON.parse(localStorage.getItem("chat-history") || "{}");
@@ -85,11 +93,79 @@ function cleanupOldChats(days = 7) {
   localStorage.setItem("chat-history", JSON.stringify(history));
 }
 
-// 📝 Save reminder
+// ➕ Save reminder
 function saveReminder(text) {
   let reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
   reminders.push({ text, timestamp: Date.now() });
   localStorage.setItem("reminders", JSON.stringify(reminders));
+}
+
+// ➕ Save goal
+function saveGoal(text) {
+  let goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  goals.push({ text, timestamp: Date.now() });
+  localStorage.setItem("goals", JSON.stringify(goals));
+}
+
+// 🗑️ Clear reminders
+function clearReminders() {
+  localStorage.removeItem("reminders");
+  displayReminders();
+}
+
+// 🗑️ Clear goals
+function clearGoals() {
+  localStorage.removeItem("goals");
+  displayGoals();
+}
+
+// 📌 Display reminders in dashboard
+function displayReminders() {
+  const list = document.getElementById("reminders-list");
+  const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
+  list.innerHTML = reminders.map(r => `<li>${r.text}</li>`).join("");
+}
+
+// 🎯 Display goals in dashboard
+function displayGoals() {
+  const list = document.getElementById("goals-list");
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  list.innerHTML = goals.map(g => `<li>${g.text}</li>`).join("");
+}
+
+// 🕒 Display chat history grouped by date
+function displayChatHistory() {
+  const container = document.getElementById("chat-history");
+  const history = JSON.parse(localStorage.getItem("chat-history") || "{}");
+
+  let html = "";
+  for (let date in history) {
+    html += `<h3>${date}</h3><ul>`;
+    history[date].forEach(msg => {
+      html += `<li>${msg}</li>`;
+    });
+    html += `</ul>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// 🆕 Start a new chat manually
+function startNewChat() {
+  const today = getToday();
+  localStorage.setItem("last-session", today);
+  document.getElementById("user-input").value = "";
+
+  const chatBox = document.getElementById("chat-box");
+  const msg = document.createElement("div");
+  msg.className = "cs-message";
+  msg.textContent = "CS Assistant: Starting a fresh chat session 🆕";
+  chatBox.appendChild(msg);
+
+  const utterance = new SpeechSynthesisUtterance("Starting a fresh chat session.");
+  utterance.voice = speechSynthesis.getVoices()[0];
+  speechSynthesis.speak(utterance);
+  }  localStorage.setItem("reminders", JSON.stringify(reminders));
 }
 
 // 🎯 Save goal
