@@ -553,7 +553,7 @@ function showCSMessageMenu(event, messageText,) {
 
   // Share action
   document.getElementById("cs-share").onclick = function () {
-    const url = ${window.location.origin}${window.location.pathname}?shareText=${encodeURIComponent(messageText)};
+    const url = `${window.location.origin}${window.location.pathname}?shareText=${encodeURIComponent(messageText)}`;
     navigator.clipboard.writeText(url).then(() => {
       alert("Shareable link copied to clipboard! 🔗");
     });
