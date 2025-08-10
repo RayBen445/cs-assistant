@@ -155,7 +155,6 @@ body.dark input[type="date"] {
 
 /* Buttons */
 button {
-  position: fixed;
   padding: 12px 20px;
   font-size: 16px;
   background-color: #0078d4;
