@@ -578,7 +578,6 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
 // 🧠 Initialize assistant on page load
 window.onload = function () {
   restoreOrStartNewChat();     // Start fresh or restore today's chat
@@ -615,6 +614,95 @@ function addGoal() {
   }
 }
 
+// 🧹 Clear all reminders
+function clearReminders() {
+  localStorage.removeItem("reminders");
+  displayReminders();
+}
+
+// 🧹 Clear all goals
+function clearGoals() {
+  localStorage.removeItem("goals");
+  displayGoals();
+}
+
+// 💾 Save chat input to localStorage
+function saveChat(text) {
+  const today = new Date().toISOString().split("T")[0];
+  localStorage.setItem(`chat-${today}`, text);
+}
+
+// 💾 Save reminder to localStorage
+function saveReminder(text) {
+  const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
+  reminders.push(text);
+  localStorage.setItem("reminders", JSON.stringify(reminders));
+}
+
+// 💾 Save goal to localStorage
+function saveGoal(text) {
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  goals.push(text);
+  localStorage.setItem("goals", JSON.stringify(goals));
+}
+
+// 📋 Display reminders
+function displayReminders() {
+  const container = document.getElementById("reminder-list");
+  const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
+  container.innerHTML = reminders.map(r => `<li>${r}</li>`).join("");
+}
+
+// 🎯 Display goals
+function displayGoals() {
+  const container = document.getElementById("goal-list");
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  container.innerHTML = goals.map(g => `<li>${g}</li>`).join("");
+}
+
+// 📅 Display chat history by date
+function displayChatHistory() {
+  const historyContainer = document.getElementById("chat-history");
+  historyContainer.innerHTML = "";
+
+  for (let key in localStorage) {
+    if (key.startsWith("chat-")) {
+      const date = key.split("chat-")[1];
+      const chat = localStorage.getItem(key);
+      historyContainer.innerHTML += `<div><strong>${date}</strong>: ${chat}</div>`;
+    }
+  }
+}
+
+// 🧹 Clean up old chats (optional: keep only last 7 days)
+function cleanupOldChats() {
+  const now = new Date();
+  for (let key in localStorage) {
+    if (key.startsWith("chat-")) {
+      const dateStr = key.split("chat-")[1];
+      const date = new Date(dateStr);
+      const diffDays = (now - date) / (1000 * 60 * 60 * 24);
+      if (diffDays > 7) {
+        localStorage.removeItem(key);
+      }
+    }
+  }
+}
+
+// 🔄 Restore or start new chat
+function restoreOrStartNewChat() {
+  const today = new Date().toISOString().split("T")[0];
+  const saved = localStorage.getItem(`chat-${today}`);
+  if (saved) {
+    document.getElementById("user-input").value = saved;
+  } else {
+    document.getElementById("user-input").value = "";
+  }
+}
+
+// 🧩 Add event listeners for clear buttons
+document.getElementById("clear-reminders").addEventListener("click", clearReminders);
+document.getElementById("clear-goals").addEventListener("click", clearGoals);
 // Expose functions globally
 window.sendMessage = sendMessage;
 window.toggleMute = toggleMute;
