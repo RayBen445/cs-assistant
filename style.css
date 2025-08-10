@@ -385,6 +385,97 @@ body.dark .controls-area select {
   color: #444;
 }
 
+/* 🌐 General layout */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  padding: 20px;
+  color: #333;
+}
+
+h2 {
+  margin-top: 30px;
+  color: #2c3e50;
+}
+
+/* 💬 Chat input */
+#user-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+/* 📅 Chat history */
+#chat-history {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* 📝 Reminder and goal inputs */
+input[type="text"] {
+  padding: 10px;
+  font-size: 15px;
+  width: 80%;
+  margin-right: 10px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+}
+
+/* ➕ Add and 🧹 Clear buttons */
+button {
+  padding: 10px 14px;
+  font-size: 14px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+/* 📋 Lists for reminders and goals */
+ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+/* 🧩 Section containers */
+.section {
+  margin-bottom: 40px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+
+/* 📱 Responsive tweaks */
+@media (max-width: 600px) {
+  input[type="text"] {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 5px;
+  }
+  }
+
 /* Responsive Design */
 @media (max-width: 640px) {
   .chat-container {
