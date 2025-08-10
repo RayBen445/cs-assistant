@@ -744,130 +744,130 @@ window.onload = function () {
     });
   }
 };
-let userName = localStorage.getItem("user-name") || null;
-let awaitingName = false;
+//let userName = localStorage.getItem("user-name") || null;
+//let awaitingName = false;
 
 // 🧠 Add message to chat window and save to history
-function addMessage(sender, text) {
-  const chatWindow = document.getElementById("chat-window");
-  const message = document.createElement("div");
-  message.textContent = `${sender}: ${text}`;
-  chatWindow.appendChild(message);
-  chatWindow.scrollTop = chatWindow.scrollHeight;
+//function addMessage(sender, text) {
+  //const chatWindow = document.getElementById("chat-window");
+  //const message = document.createElement("div");
+//  message.textContent = `${sender}: ${text}`;
+//  chatWindow.appendChild(message);
+ // chatWindow.scrollTop = chatWindow.scrollHeight;
 
-  saveMessageToHistory(sender, text);
-}
+  //saveMessageToHistory(sender, text);
+//}
 
 // 💾 Save message to localStorage
-function saveMessageToHistory(sender, text) {
-  const today = new Date().toISOString().split("T")[0];
-  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+//function saveMessageToHistory(sender, text) {
+//  const today = new Date().toISOString().split("T")[0];
+//  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  const history = JSON.parse(localStorage.getItem("chat-history") || "{}");
-  if (!history[today]) history[today] = [];
+  //const history = JSON.parse(localStorage.getItem("chat-history") || "{}");
+ // if (!history[today]) history[today] = [];
 
-  history[today].push({ sender, time, text });
-  localStorage.setItem("chat-history", JSON.stringify(history));
-}
+ // history[today].push({ sender, time, text });
+ // localStorage.setItem("chat-history", JSON.stringify(history));
+//}
 
 // 🌞 Time-based greeting
-function getTimeBasedGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
+//function getTimeBasedGreeting() {
+ // const hour = new Date().getHours();
+  //if (hour < 12) return "Good morning";
+//  if (hour < 17) return "Good afternoon";
+  //return "Good evening";
+//}
 
 // 👋 Greet user on load
-function greetUser() {
-  const greeting = getTimeBasedGreeting();
-  if (userName) {
-    addMessage("CS", `${greeting}, ${userName}! 👋 I'm CS, your friendly assistant.`);
-    addMessage("CS", "What can I help you with today?");
-  } else {
-    addMessage("CS", `${greeting}! I'm CS, your friendly assistant. 😊`);
-    addMessage("CS", "What is your name?");
-    awaitingName = true;
-  }
-}
+//function greetUser() {
+//  const greeting = getTimeBasedGreeting();
+//  if (userName) {
+   // addMessage("CS", `${greeting}, ${userName}! 👋 I'm CS, your friendly assistant.`);
+  //  addMessage("CS", "What can I help you with today?");
+  //} else {
+   // addMessage("CS", `${greeting}! I'm CS, your friendly assistant. 😊`);
+ //   addMessage("CS", "What is your name?");
+   // awaitingName = true;
+ // }
+//}
 
 // 💬 Handle user input
-function handleUserInput() {
-  const input = document.getElementById("chat-input");
-  const text = input.value.trim();
-  if (!text) return;
+//function handleUserInput() {
+ // const input = document.getElementById("chat-input");
+//  const text = input.value.trim();
+  //if (!text) return;
 
-  addMessage("You", text);
-  input.value = "";
+  //addMessage("You", text);
+  //input.value = "";
 
-  if (awaitingName) {
-    userName = text;
-    localStorage.setItem("user-name", userName);
-    addMessage("CS", `Nice to meet you, ${userName}! How can I assist you today?`);
-    awaitingName = false;
-    return;
-  }
+//  if (awaitingName) {
+   // userName = text;
+  //  localStorage.setItem("user-name", userName);
+   // addMessage("CS", `Nice to meet you, ${userName}! How can I assist you today?`);
+  //  awaitingName = false;
+   // return;
+ // }
 
-  addMessage("CS", `Thanks for your message, ${userName || "friend"}!`);
-}
+  //addMessage("CS", `Thanks for your message, ${userName || "friend"}!`);
+//}
 
 // 🔄 Reset name
-function resetName() {
-  localStorage.removeItem("user-name");
-  userName = null;
-  addMessage("CS", "Alright, let's start fresh! 😊");
-  greetUser();
-}
+//function resetName() {
+ // localStorage.removeItem("user-name");
+  //userName = null;
+ // addMessage("CS", "Alright, let's start fresh! 😊");
+ // greetUser();
+//}
 
 // 🆕 Start new chat
-function startNewChat() {
-  const chatWindow = document.getElementById("chat-window");
-  chatWindow.innerHTML = "";
-  addMessage("CS", "Starting a new chat... 🆕");
-  greetUser();
-}
+//function startNewChat() {
+ // const chatWindow = document.getElementById("chat-window");
+ // chatWindow.innerHTML = "";
+  //addMessage("CS", "Starting a new chat... 🆕");
+ // greetUser();
+//}
 
 // 📜 Display chat history
-function displayChatHistory() {
-  const container = document.getElementById("chat-history");
-  const history = JSON.parse(localStorage.getItem("chat-history") || "{}");
+//function displayChatHistory() {
+  //const container = document.getElementById("chat-history");
+//  const history = JSON.parse(localStorage.getItem("chat-history") || "{}");
 
-  container.innerHTML = "";
+ // container.innerHTML = "";
 
-  if (Object.keys(history).length === 0) {
-    container.innerHTML = "<p>No chat history available.</p>";
-    return;
-  }
+ // if (Object.keys(history).length === 0) {
+    //container.innerHTML = "<p>No chat history available.</p>";
+  //  return;
+//  }
 
-  for (let date in history) {
-    const messages = history[date];
-    const dateHeader = document.createElement("h3");
-    dateHeader.textContent = date;
-    container.appendChild(dateHeader);
+//  for (let date in history) {
+   // const messages = history[date];
+   // const dateHeader = document.createElement("h3");
+   // dateHeader.textContent = date;
+   // container.appendChild(dateHeader);
 
-    const ul = document.createElement("ul");
-    messages.forEach(msg => {
-      const li = document.createElement("li");
-      li.textContent = `[${msg.time}] ${msg.sender}: ${msg.text}`;
-      ul.appendChild(li);
-    });
+   // const ul = document.createElement("ul");
+  //  messages.forEach(msg => {
+    //  const li = document.createElement("li");
+   //   li.textContent = `[${msg.time}] ${msg.sender}: ${msg.text}`;
+   //   ul.appendChild(li);
+   // });
+//
+  //  container.appendChild(ul);
+ // }
 
-    container.appendChild(ul);
-  }
-
-  document.getElementById("overlay").style.display = "block";
-  document.getElementById("chat-history-modal").style.display = "block";
-}
+  //document.getElementById("overlay").style.display = "block";
+ // document.getElementById("chat-history-modal").style.display = "block";
+//}
 
 // ❌ Close history modal
-function closeHistory() {
-  document.getElementById("overlay").style.display = "none";
-  document.getElementById("chat-history-modal").style.display = "none";
-}
+//function closeHistory() {
+//  document.getElementById("overlay").style.display = "none";
+ // document.getElementById("chat-history-modal").style.display = "none";
+//}
 
 // 🚀 Event listeners
-window.addEventListener("DOMContentLoaded", greetUser);
-document.getElementById("send-btn").addEventListener("click", handleUserInput);
-document.getElementById("reset-name-btn").addEventListener("click", resetName);
-document.getElementById("new-chat-btn").addEventListener("click", startNewChat);
-document.getElementById("view-history-btn").addEventListener("click", displayChatHistory);
+//window.addEventListener("DOMContentLoaded", greetUser);
+//document.getElementById("send-btn").addEventListener("click", handleUserInput);
+//document.getElementById("reset-name-btn").addEventListener("click", resetName);
+//document.getElementById("new-chat-btn").addEventListener("click", startNewChat);
+//document.getElementById("view-history-btn").addEventListener("click", displayChatHistory);
