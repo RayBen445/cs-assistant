@@ -47,6 +47,40 @@
       <button onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
       <button onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
     </section>
+
+    <!-- 🧠 Assistant Dashboard -->
+    <section class="assistant-dashboard">
+      <!-- 🎯 Goals -->
+      <div class="dashboard-section" id="goals">
+        <h2>🎯 Goals</h2>
+        <ul id="goals-list">
+          <li>Finish UI integration by Friday</li>
+          <li>Implement reminder logic</li>
+        </ul>
+        <input type="text" id="new-goal" placeholder="Add a new goal..." />
+        <button onclick="addGoal()">➕ Add Goal</button>
+      </div>
+
+      <!-- ⏰ Reminders -->
+      <div class="dashboard-section" id="reminders">
+        <h2>⏰ Reminders</h2>
+        <ul id="reminders-list">
+          <li>Team sync at 10 AM tomorrow</li>
+          <li>Push update to GitHub</li>
+        </ul>
+        <input type="text" id="new-reminder" placeholder="Add a new reminder..." />
+        <button onclick="addReminder()">➕ Add Reminder</button>
+      </div>
+
+      <!-- 📜 History -->
+      <div class="dashboard-section" id="history">
+        <h2>📜 History</h2>
+        <div id="history-log">
+          <p><strong>Aug 9:</strong> Assistant greeted user and shared kangaroo fact 🦘</p>
+          <p><strong>Aug 8:</strong> User asked about CS Assistant metadata</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- 🧩 Footer Section -->
@@ -58,4 +92,4 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="module" src="script.js"></script>
 </body>
-        </html>
+                                                              </html>
