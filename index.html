@@ -15,6 +15,9 @@
 
   <!-- 💬 Main Chat Area -->
   <main class="chat-container">
+    <!-- 🏷️ Today Label -->
+    <div id="chat-label" class="chat-date-label">Today</div>
+
     <!-- Chat messages will appear here -->
     <section id="chat-box" class="chat-box" aria-live="polite"></section>
 
@@ -53,10 +56,7 @@
       <!-- 🎯 Goals -->
       <div class="dashboard-section" id="goals">
         <h2>🎯 Goals</h2>
-        <ul id="goals-list">
-          <li>Finish UI integration by Friday</li>
-          <li>Implement reminder logic</li>
-        </ul>
+        <ul id="goals-list"></ul>
         <input type="text" id="new-goal" placeholder="Add a new goal..." />
         <button onclick="addGoal()">➕ Add Goal</button>
       </div>
@@ -64,10 +64,7 @@
       <!-- ⏰ Reminders -->
       <div class="dashboard-section" id="reminders">
         <h2>⏰ Reminders</h2>
-        <ul id="reminders-list">
-          <li>Team sync at 10 AM tomorrow</li>
-          <li>Push update to GitHub</li>
-        </ul>
+        <ul id="reminders-list"></ul>
         <input type="text" id="new-reminder" placeholder="Add a new reminder..." />
         <button onclick="addReminder()">➕ Add Reminder</button>
       </div>
@@ -75,10 +72,7 @@
       <!-- 📜 History -->
       <div class="dashboard-section" id="history">
         <h2>📜 History</h2>
-        <div id="history-log">
-          <p><strong>Aug 9:</strong> Assistant greeted user and shared kangaroo fact 🦘</p>
-          <p><strong>Aug 8:</strong> User asked about CS Assistant metadata</p>
-        </div>
+        <div id="chat-history"></div>
       </div>
     </section>
   </main>
@@ -90,6 +84,7 @@
 
   <!-- 📦 External Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="dailyChat.js"></script>
   <script type="module" src="script.js"></script>
 </body>
-                                                              </html>
+                                      </html>
