@@ -511,11 +511,11 @@ window.addEventListener("load", () => {
 // <textarea id="user-input" rows="3" placeholder="Type your message..."></textarea>
 
 // Context menu for input actions
-function showInputMenu(event) {
-  let menu = document.getElementById("input-context-menu");
+function showCSMessageMenu(event, messageText,
+  let menu = document.getElementById("cs-context-menu");
   if (!menu) {
     menu = document.createElement("div");
-    menu.id = "input-context-menu";
+    menu.id = "cs-context-menu";
     menu.style.position = "absolute";
     menu.style.background = "#fff";
     menu.style.border = "1px solid #ccc";
@@ -544,27 +544,22 @@ function showInputMenu(event) {
   menu.style.display = "block";
 
   // Copy action
-  document.getElementById("copy-message").onclick = function () {
-    const input = document.getElementById("user-input");
-    input.select();
-    document.execCommand("copy");
+  document.getElementById("cs-copy").onclick = function () {
+    navigator.clipboard.writeText(messageText).then(() => {
+      alert("Message copied! 📋");
+    });
     menu.style.display = "none";
   };
 
   // Share action
-  document.getElementById("share-message").onclick = function () {
-    const input = document.getElementById("user-input");
-    const text = input.value.trim();
-    if (!text) {
-      alert("Nothing to share!");
-      return;
-    }
-    // Example: Copy a sharable link (could be improved to actually share via Web Share API)
-    const url = `${window.location.origin}${window.location.pathname}?shareText=${encodeURIComponent(text)}`;
+  document.getElementById("cs-share").onclick = function () {
+    const url = ${window.location.origin}${window.location.pathname}?shareText=${encodeURIComponent(messageText)};
     navigator.clipboard.writeText(url).then(() => {
-      alert("Shareable link copied to clipboard! 📋");
+      alert("Shareable link copied to clipboard! 🔗");
     });
     menu.style.display = "none";
+    }
+    // Example: Copy a sharable link (could be improved to actually share via Web Share API)
   };
 }
 
