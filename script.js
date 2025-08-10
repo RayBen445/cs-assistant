@@ -579,6 +579,42 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// 🧠 Initialize assistant on page load
+window.onload = function () {
+  restoreOrStartNewChat();     // Start fresh or restore today's chat
+  cleanupOldChats();           // Clean up old chat sessions
+  displayReminders();          // Show saved reminders
+  displayGoals();              // Show saved goals
+  displayChatHistory();        // Show full chat history by date
+};
+
+// 💬 Auto-save chat input as user types
+document.getElementById("user-input").addEventListener("input", function () {
+  saveChat(this.value);
+});
+
+// ➕ Add a new reminder
+function addReminder() {
+  const input = document.getElementById("new-reminder");
+  const text = input.value.trim();
+  if (text) {
+    saveReminder(text);
+    displayReminders();
+    input.value = "";
+  }
+}
+
+// ➕ Add a new goal
+function addGoal() {
+  const input = document.getElementById("new-goal");
+  const text = input.value.trim();
+  if (text) {
+    saveGoal(text);
+    displayGoals();
+    input.value = "";
+  }
+}
+
 // Expose functions globally
 window.sendMessage = sendMessage;
 window.toggleMute = toggleMute;
