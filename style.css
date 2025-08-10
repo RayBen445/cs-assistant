@@ -86,7 +86,7 @@ body.dark .chat-container {
 .chat-box {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 20px;
+  padding: 180px;
   border-bottom: 1px solid #ddd;
   display: flex;
   flex-direction: column;
@@ -96,7 +96,7 @@ body.dark .chat-container {
 /* Input Area */
 .input-area {
   position: fixed;
-  bottom: 80px;
+  bottom: 120px;
   left: 0;
   right: 0;
   display: flex;
