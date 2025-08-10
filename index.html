@@ -42,7 +42,7 @@
       <select id="voice-selector" aria-label="Select voice"></select>
 
       <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️ Light Mode</button>
-      <button onclick="resetChat()" aria-label="Reset chat">🔄 Reset Chat</button>
+      <button onclick="startNewChat()" aria-label="Start new chat">🆕 New Chat</button>
     </section>
 
     <!-- 📥 Download Area -->
@@ -59,6 +59,7 @@
         <ul id="goals-list"></ul>
         <input type="text" id="new-goal" placeholder="Add a new goal..." />
         <button onclick="addGoal()">➕ Add Goal</button>
+        <button onclick="clearGoals()">🗑️ Clear Goals</button>
       </div>
 
       <!-- ⏰ Reminders -->
@@ -67,6 +68,7 @@
         <ul id="reminders-list"></ul>
         <input type="text" id="new-reminder" placeholder="Add a new reminder..." />
         <button onclick="addReminder()">➕ Add Reminder</button>
+        <button onclick="clearReminders()">🗑️ Clear Reminders</button>
       </div>
 
       <!-- 📜 History -->
@@ -87,4 +89,4 @@
   <script src="dailyChat.js"></script>
   <script type="module" src="script.js"></script>
 </body>
-                                      </html>
+        </html>
