@@ -31,7 +31,7 @@
     <!-- 📝 Input Area -->
     <section class="input-area">
       <textarea id="user-input" rows="3" placeholder="Type your message..." aria-label="User input"></textarea>
-      <button onclick="sendMessage()" aria-label="Send message">Send</button>
+      <button id="send-button" onclick="sendMessage()" aria-label="Send message">Send</button>
     </section>
 
     <!-- 🎛️ Controls Area -->
@@ -42,13 +42,13 @@
       <select id="voice-selector" aria-label="Select voice"></select>
 
       <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️ Light Mode</button>
-      <button onclick="startNewChat()" aria-label="Start new chat">🆕 New Chat</button>
+      <button id="new-chat" onclick="startNewChat()" aria-label="Start new chat">🆕 New Chat</button>
     </section>
 
     <!-- 📥 Download Area -->
     <section class="download-area">
-      <button onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
-      <button onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
+      <button id="download-pdf" onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
+      <button id="share-link" onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
     </section>
 
     <!-- 🧠 Assistant Dashboard -->
@@ -58,8 +58,8 @@
         <h2>🎯 Goals</h2>
         <ul id="goals-list"></ul>
         <input type="text" id="new-goal" placeholder="Add a new goal..." />
-        <button onclick="addGoal()">➕ Add Goal</button>
-        <button onclick="clearGoals()">🗑️ Clear Goals</button>
+        <button id="add-goal" onclick="addGoal()">➕ Add Goal</button>
+        <button id="clear-goals" onclick="clearGoals()">🗑️ Clear Goals</button>
       </div>
 
       <!-- ⏰ Reminders -->
@@ -67,8 +67,8 @@
         <h2>⏰ Reminders</h2>
         <ul id="reminders-list"></ul>
         <input type="text" id="new-reminder" placeholder="Add a new reminder..." />
-        <button onclick="addReminder()">➕ Add Reminder</button>
-        <button onclick="clearReminders()">🗑️ Clear Reminders</button>
+        <button id="add-reminder" onclick="addReminder()">➕ Add Reminder</button>
+        <button id="clear-reminders" onclick="clearReminders()">🗑️ Clear Reminders</button>
       </div>
 
       <!-- 📜 History -->
