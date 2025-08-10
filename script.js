@@ -561,7 +561,6 @@ function showCSMessageMenu(event, messageText,) {
     }
     // Example: Copy a sharable link (could be improved to actually share via Web Share API)
   };
-}
 
 // Attach context menu to textarea
 window.addEventListener("DOMContentLoaded", () => {
