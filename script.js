@@ -523,48 +523,16 @@ function displayReminders() {
 function displayChatHistory() {
   const container = document.getElementById("chat-history");
   const history = JSON.parse(localStorage.getItem("chat-history") || "{}");
-
-  container.innerHTML = "";
-
-  if (Object.keys(history).length === 0) {
-    container.innerHTML = "<p>No chat history available.</p>";
-    return;
-  }
-
+  let html = "";
   for (let date in history) {
-    const messages = history[date];
-    const dateHeader = document.createElement("h3");
-    dateHeader.textContent = date;
-    container.appendChild(dateHeader);
-
-    const ul = document.createElement("ul");
-    messages.forEach(msgObj => {
-      const li = document.createElement("li");
-
-      // If your messages are stored as objects like { sender: "You", time: "...", text: "..." }
-      if (typeof msgObj === "object") {
-        const sender = msgObj.sender || "Unknown";
-        const time = msgObj.time || "";
-        const text = msgObj.text || msgObj.message || "";
-
-        li.textContent = `[${time}] ${sender}: ${text}`;
-      } else {
-        // Fallback for plain strings
-        li.textContent = msgObj;
-      }
-
-      ul.appendChild(li);
+    html += <h3>${date}</h3><ul>;
+    history[date].forEach(msg => {
+      html += <li>${msg}</li>;
     });
-
-    container.appendChild(ul);
+    html += </ul>;
   }
+  container.innerHTML = html;
 }
-
-// Load history on page load
-window.addEventListener("DOMContentLoaded", displayChatHistory);
-
-// Optional: Load history on button click
-document.getElementById("load-history-btn").addEventListener("click", displayChatHistory);
 
 // ==========================
 // PDF & SHARE
