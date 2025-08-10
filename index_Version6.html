@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CS Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="light">
+  <!-- 🌟 Header Section -->
+  <header class="page-header">
+    <h1>CS Assistant</h1>
+    <p>Your smart companion, always ready to help 🤖</p>
+  </header>
+
+  <!-- 💬 Main Chat Area -->
+  <div class="chat-container">
+    <!-- Chat messages will appear here -->
+    <main id="chat-box" class="chat-box" aria-label="Chat messages"></main>
+  </div>
+
+  <!-- 📝 Input Area -->
+  <footer class="input-area" role="group" aria-label="Message input area">
+    <!-- File Attachment -->
+    <input type="file" id="file-input" style="display:none" aria-label="Attach file" />
+    <button type="button" onclick="document.getElementById('file-input').click()" title="Attach File" aria-label="Attach file">📎</button>
+
+    <!-- User Input -->
+    <textarea id="user-input" rows="2" placeholder="Type your message..." aria-label="Type your message"></textarea>
+
+    <!-- Speech-to-Text Mic -->
+    <button type="button" id="mic-btn" title="Speech to text" aria-label="Speech to text">🎤</button>
+
+    <!-- Sound Toggle -->
+    <button type="button" id="mute-toggle" title="Toggle voice" aria-label="Toggle voice">🔊</button>
+
+    <!-- Send Button -->
+    <button type="button" id="send-btn" title="Send" aria-label="Send message">➤</button>
+  </footer>
+
+  <!-- Controls Area -->
+  <div class="controls-area">
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">☀️ Light Mode</button>
+    <!-- Accent Color Picker -->
+    <input type="color" id="accent-picker" title="Accent color" aria-label="Accent color" value="#0078d4" style="width:36px; height:36px; border:none; border-radius:50%; vertical-align:middle;">
+    <!-- Voice Selection -->
+    <label for="voice-selector" style="margin-left:12px;">Voice:</label>
+    <select id="voice-selector" aria-label="Select voice"></select>
+    <!-- Admin panel will be dynamically injected if you are admin -->
+    <div id="admin-panel"></div>
+    <!-- Support Button -->
+    <button id="support-btn" aria-label="Contact Support">💬 Support</button>
+  </div>
+
+  <!-- Download Area -->
+  <div class="download-area">
+    <button id="download-pdf" onclick="downloadPDF()" aria-label="Download chat as PDF">Download as PDF</button>
+    <button id="share-link" onclick="generateShareLink()" aria-label="Generate shareable link">Get Shareable Link</button>
+  </div>
+
+  <!-- Dashboard Area (Goals, Reminders, History) -->
+  <section class="assistant-dashboard">
+    <!-- 🎯 Goals -->
+    <div class="dashboard-section" id="goals">
+      <h2>🎯 Goals</h2>
+      <ul id="goals-list"></ul>
+      <input type="text" id="new-goal" placeholder="Add a new goal..." />
+      <button id="add-goal" onclick="addGoal()">➕ Add Goal</button>
+      <button id="clear-goals" onclick="clearGoals()">🗑️ Clear Goals</button>
+    </div>
+
+    <!-- ⏰ Reminders -->
+    <div class="dashboard-section" id="reminders">
+      <h2>⏰ Reminders</h2>
+      <ul id="reminders-list"></ul>
+      <input type="text" id="new-reminder" placeholder="Add a new reminder..." />
+      <button id="add-reminder" onclick="addReminder()">➕ Add Reminder</button>
+      <button id="clear-reminders" onclick="clearReminders()">🗑️ Clear Reminders</button>
+    </div>
+
+    <!-- 📜 History -->
+    <div class="dashboard-section" id="history">
+      <h2>📜 History</h2>
+      <div id="chat-history"></div>
+    </div>
+  </section>
+
+  <!-- Unread badge and typing indicator will be injected by JS -->
+
+  <!-- Optional Emoji Picker UI (if you implement it) -->
+  <div id="emoji-picker" class="emoji-picker" style="display:none"></div>
+
+  <!-- Page Footer -->
+  <footer class="page-footer">
+    <p>&copy; 2025 CS Assistant. Built with 💙 in Nigeria.</p>
+  </footer>
+
+  <!-- Support Modal (Advanced) -->
+  <div id="support-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="document.getElementById('support-modal').style.display='none'">&times;</span>
+      <h2>Contact Support</h2>
+      
+      <!-- Multi-channel -->
+      <div class="support-channels">
+        <a href="mailto:oladoyeheritage445@gmail.com" title="Email"><img src="email-icon.svg" alt="Email"></a>
+        <a href="https://wa.me/2348075614248" target="_blank" title="WhatsApp"><img src="whatsapp-icon.svg" alt="WhatsApp"></a>
+        <a href="https://github.com/RayBen445" target="_blank" title="GitHub"><img src="github-icon.svg" alt="GitHub"></a>
+        <a href="https://whatsapp.com/channel/0029VbAlmwn8V0tmhrtxSH0x" target="_blank" title="WhatsApp Channel"><img src="channel-icon.svg" alt="Channel"></a>
+      </div>
+
+      <!-- FAQ Search -->
+      <input type="text" id="faq-search" placeholder="Search FAQ..." oninput="searchFAQ()">
+      <ul id="faq-list">
+        <li><strong>How do I reset my password?</strong><br>Contact support via email or WhatsApp with your username.</li>
+        <li><strong>How do I download my chat history?</strong><br>Use the 'Download as PDF' button in the chat controls.</li>
+        <li><strong>How to contact support?</strong><br>Use the form below or any of the channels above.</li>
+        <li><strong>How do I join the WhatsApp channel?</strong><br>Click the WhatsApp Channel icon above to join for updates.</li>
+      </ul>
+
+      <!-- Support Ticket Form -->
+      <form id="support-form">
+        <label>Your Email:<br><input type="email" id="support-email" required></label><br>
+        <label>Issue:<br><textarea id="support-message" rows="3" required></textarea></label><br>
+        <label>Attach file (optional):<input type="file" id="support-file"></label><br>
+        <button type="submit">Submit Ticket</button>
+      </form>
+      <div id="support-success" style="display:none; color:green;">Thank you! Your request has been submitted.</div>
+      <hr>
+      <h3>Your Previous Requests</h3>
+      <ul id="ticket-history"></ul>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
