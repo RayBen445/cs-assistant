@@ -15,7 +15,10 @@
     <div id="login-status" class="login-status">
       <span id="user-greeting">Welcome! Please sign in to save your data.</span>
       <button id="profile-btn" class="profile-btn" onclick="showProfileModal()" style="display:none;">👤 Profile</button>
-      <button id="login-toggle-btn" class="login-toggle-btn" onclick="showLoginModal()">Sign In</button>
+      <div id="auth-buttons" class="auth-buttons">
+        <button id="login-toggle-btn" class="login-toggle-btn" onclick="showLoginModal()">Sign In</button>
+        <button id="signup-btn" class="signup-btn" onclick="showSignupModal()">Sign Up</button>
+      </div>
     </div>
   </header>
 
@@ -115,18 +118,51 @@
   <div id="login-modal" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close" onclick="closeLoginModal()">&times;</span>
-      <h2>Welcome to CS Assistant</h2>
-      <p>Sign in to save your chat history and personalize your experience.</p>
+      <h2>Welcome Back</h2>
+      <p>Sign in to access your account and saved data.</p>
       <form id="login-form">
-        <label for="login-username">Username:</label>
-        <input type="text" id="login-username" required placeholder="Enter your username" aria-label="Username">
-        <label for="login-password">Password (optional for demo):</label>
-        <input type="password" id="login-password" placeholder="Enter your password (optional)" aria-label="Password">
+        <label for="login-email">Email:</label>
+        <input type="email" id="login-email" required placeholder="Enter your email" aria-label="Email">
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" required placeholder="Enter your password" aria-label="Password">
         <button type="submit" class="login-btn">Sign In</button>
       </form>
+      <div class="auth-switch">
+        <p>Don't have an account? <button type="button" onclick="showSignupModal()" class="switch-auth-btn">Sign Up</button></p>
+      </div>
       <div id="login-success" style="display:none; color:green; margin-top:1em;">
         Welcome! You can now save your chat history.
       </div>
+      <div id="login-error" style="display:none; color:red; margin-top:1em;"></div>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeSignupModal()">&times;</span>
+      <h2>Create Account</h2>
+      <p>Join CS Assistant to save your chat history and personalize your experience.</p>
+      <form id="signup-form">
+        <label for="signup-username">Username:</label>
+        <input type="text" id="signup-username" required placeholder="Choose a username" aria-label="Username">
+        <label for="signup-email">Email:</label>
+        <input type="email" id="signup-email" required placeholder="Enter your email" aria-label="Email">
+        <label for="signup-display-name">Display Name (optional):</label>
+        <input type="text" id="signup-display-name" placeholder="How others see your name" aria-label="Display name">
+        <label for="signup-password">Password:</label>
+        <input type="password" id="signup-password" required placeholder="Create a password" aria-label="Password">
+        <label for="signup-confirm-password">Confirm Password:</label>
+        <input type="password" id="signup-confirm-password" required placeholder="Confirm your password" aria-label="Confirm password">
+        <button type="submit" class="signup-btn">Create Account</button>
+      </form>
+      <div class="auth-switch">
+        <p>Already have an account? <button type="button" onclick="showLoginModal()" class="switch-auth-btn">Sign In</button></p>
+      </div>
+      <div id="signup-success" style="display:none; color:green; margin-top:1em;">
+        Account created successfully! Welcome to CS Assistant.
+      </div>
+      <div id="signup-error" style="display:none; color:red; margin-top:1em;"></div>
     </div>
   </div>
 
@@ -222,7 +258,14 @@
   </div>
 
   <!-- Scripts -->
+  <!-- Firebase SDK - Commented out for demo mode, uncomment when deploying with real Firebase config -->
+  <!-- 
+  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore-compat.js"></script>
+  -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

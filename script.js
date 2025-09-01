@@ -8,7 +8,9 @@ let userName = null,
     accentColor = "#0078d4",
     chatHistory = [],
     unreadCount = 0,
-    typingTimeout = null;
+    typingTimeout = null,
+    currentFirebaseUser = null,
+    currentUserProfile = null;
 
 const ADMIN_USERNAME = "RayBen445";
 const ADMIN_EMAIL = "oladoyeheritage445@gmail.com";
@@ -50,150 +52,285 @@ const ICONS = {
 function nowISO() { return new Date().toISOString(); }
 function formatTime(ts) { return new Date(ts).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}); }
 function isAdmin() {
-  return userName && userName.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase();
+  return currentUserProfile && currentUserProfile.isAdmin === true;
 }
 
 // ==========================
 // AUTHENTICATION SYSTEM
 // ==========================
 function isAuthenticated() {
-  return localStorage.getItem("csUserAccount") !== null;
+  return currentFirebaseUser !== null;
 }
 
 function getCurrentUser() {
-  const userAccount = localStorage.getItem("csUserAccount");
-  return userAccount ? JSON.parse(userAccount) : null;
+  return currentUserProfile;
 }
 
 function showLoginModal() {
+  closeSignupModal(); // Close signup if open
   document.getElementById("login-modal").style.display = "flex";
-  document.getElementById("login-username").focus();
+  document.getElementById("login-email").focus();
 }
 
 function closeLoginModal() {
   document.getElementById("login-modal").style.display = "none";
   document.getElementById("login-form").reset();
   document.getElementById("login-success").style.display = "none";
+  document.getElementById("login-error").style.display = "none";
 }
 
-function handleLogin(username, _password = "") {
-  // Check if user already exists, if not create new profile
-  const existingAccount = getUserProfile(username);
-  
-  let userAccount;
-  if (existingAccount) {
-    // Update existing account with new login time
-    userAccount = {
-      ...existingAccount,
-      lastLoginTime: Date.now()
-    };
-  } else {
-    // Create new user account with default profile
-    userAccount = {
-      username: username,
-      displayName: username,
-      email: username.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase() ? ADMIN_EMAIL : "",
-      profileCreated: Date.now(),
-      lastLoginTime: Date.now(),
-      isAdmin: username.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase(),
-      preferences: {
-        theme: "light",
-        accentColor: "#0078d4",
-        voice: null
+function showSignupModal() {
+  closeLoginModal(); // Close login if open
+  document.getElementById("signup-modal").style.display = "flex";
+  document.getElementById("signup-username").focus();
+}
+
+function closeSignupModal() {
+  document.getElementById("signup-modal").style.display = "none";
+  document.getElementById("signup-form").reset();
+  document.getElementById("signup-success").style.display = "none";
+  document.getElementById("signup-error").style.display = "none";
+}
+
+async function handleLogin(email, password) {
+  try {
+    // Clear any existing error messages
+    document.getElementById("login-error").style.display = "none";
+    
+    const result = await firebaseSignIn(email, password);
+    
+    if (result.success) {
+      // For demo mode, manually trigger login since there's no Firebase auth listener
+      if (!firebaseAvailable) {
+        currentFirebaseUser = result.user;
+        currentUserProfile = result.profile;
+        userName = result.profile.username;
+        
+        // Apply user preferences
+        if (result.profile.preferences) {
+          applyUserPreferences(result.profile.preferences);
+        }
+        
+        // Update UI
+        updateLoginStatus();
+        hideAuthOverlay();
+        enableDashboardFeatures();
+        
+        // Show admin controls if admin
+        if (result.profile.isAdmin) {
+          showAdminControls();
+        }
       }
-    };
+      
+      // Firebase auth state listener will handle the rest for real Firebase
+      document.getElementById("login-success").style.display = "block";
+      setTimeout(() => {
+        closeLoginModal();
+      }, 2000);
+    } else {
+      // Show error message
+      document.getElementById("login-error").textContent = result.error;
+      document.getElementById("login-error").style.display = "block";
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    document.getElementById("login-error").textContent = "Login failed. Please try again.";
+    document.getElementById("login-error").style.display = "block";
   }
-  
-  localStorage.setItem("csUserAccount", JSON.stringify(userAccount));
-  userName = username;
-  localStorage.setItem("csUserName", username);
-  
-  // Apply user preferences
-  applyUserPreferences(userAccount.preferences);
-  
-  // Update UI
-  updateLoginStatus();
-  hideAuthOverlay();
-  closeLoginModal();
-  
-  // Show success message briefly
-  document.getElementById("login-success").style.display = "block";
-  setTimeout(() => {
-    document.getElementById("login-success").style.display = "none";
-  }, 3000);
-  
-  // Re-enable dashboard features
-  enableDashboardFeatures();
-  
-  // Show admin controls if admin
-  if (isAdmin()) {
-    showAdminControls();
-  }
-  
-  return true;
 }
 
-function handleLogout() {
-  // Clear user account
-  localStorage.removeItem("csUserAccount");
-  localStorage.removeItem("csUserName");
-  userName = null;
+async function handleSignup(email, password, username, displayName) {
+  try {
+    // Clear any existing error messages
+    document.getElementById("signup-error").style.display = "none";
+    
+    const result = await firebaseSignUp(email, password, username, displayName);
+    
+    if (result.success) {
+      // For demo mode, manually trigger login since there's no Firebase auth listener
+      if (!firebaseAvailable) {
+        currentFirebaseUser = result.user;
+        currentUserProfile = result.profile;
+        userName = result.profile.username;
+        
+        // Apply user preferences
+        if (result.profile.preferences) {
+          applyUserPreferences(result.profile.preferences);
+        }
+        
+        // Update UI
+        updateLoginStatus();
+        hideAuthOverlay();
+        enableDashboardFeatures();
+        
+        // Show admin controls if admin
+        if (result.profile.isAdmin) {
+          showAdminControls();
+        }
+      }
+      
+      // Firebase auth state listener will handle the rest for real Firebase
+      document.getElementById("signup-success").style.display = "block";
+      setTimeout(() => {
+        closeSignupModal();
+      }, 2000);
+    } else {
+      // Show error message
+      document.getElementById("signup-error").textContent = result.error;
+      document.getElementById("signup-error").style.display = "block";
+    }
+  } catch (error) {
+    console.error("Signup error:", error);
+    document.getElementById("signup-error").textContent = "Account creation failed. Please try again.";
+    document.getElementById("signup-error").style.display = "block";
+  }
+}
+
+async function handleLogout() {
+  try {
+    const result = await firebaseSignOut();
+    
+    // For demo mode, manually handle logout since there's no Firebase auth listener
+    if (!firebaseAvailable) {
+      userName = null;
+      currentFirebaseUser = null;
+      currentUserProfile = null;
+      
+      // Update UI
+      updateLoginStatus();
+      showAuthOverlay();
+      disableDashboardFeatures();
+      
+      // Hide admin controls
+      const adminPanel = document.getElementById("admin-panel");
+      if (adminPanel) {
+        adminPanel.remove();
+      }
+    }
+    
+    // Firebase auth state listener will handle the UI updates for real Firebase
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+}
+
+// ==========================
+// FIREBASE AUTH STATE LISTENER
+// ==========================
+function setupFirebaseAuthListener() {
+  if (!firebaseAvailable) {
+    console.log("Running in demo mode - Firebase auth listener not available");
+    // In demo mode, check for any existing localStorage session
+    initializeDemoMode();
+    return;
+  }
   
-  // Update UI
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      // User is signed in
+      const profile = await getFirebaseUserProfile(user.uid);
+      if (profile) {
+        // Update global state
+        userName = profile.username;
+        currentFirebaseUser = user;
+        currentUserProfile = profile;
+        
+        // Apply user preferences
+        if (profile.preferences) {
+          applyUserPreferences(profile.preferences);
+        }
+        
+        // Update UI
+        updateLoginStatus();
+        hideAuthOverlay();
+        enableDashboardFeatures();
+        
+        // Show admin controls if admin
+        if (profile.isAdmin) {
+          showAdminControls();
+        }
+      }
+    } else {
+      // User is signed out
+      userName = null;
+      currentFirebaseUser = null;
+      currentUserProfile = null;
+      
+      // Update UI
+      updateLoginStatus();
+      showAuthOverlay();
+      disableDashboardFeatures();
+      
+      // Hide admin controls
+      const adminPanel = document.getElementById("admin-panel");
+      if (adminPanel) {
+        adminPanel.remove();
+      }
+    }
+  });
+}
+
+function initializeDemoMode() {
+  // Demo mode initialization
+  console.log("Initializing demo mode");
   updateLoginStatus();
   showAuthOverlay();
   disableDashboardFeatures();
-  
-  // Hide admin controls
-  const adminPanel = document.getElementById("admin-panel");
-  if (adminPanel) {
-    adminPanel.remove();
-  }
 }
 
 function updateLoginStatus() {
   const userGreeting = document.getElementById("user-greeting");
   const loginToggleBtn = document.getElementById("login-toggle-btn");
+  const signupBtn = document.getElementById("signup-btn");
   const profileBtn = document.getElementById("profile-btn");
+  const authButtons = document.getElementById("auth-buttons");
   
   if (isAuthenticated()) {
     const user = getCurrentUser();
     const displayName = user.displayName || user.username;
     userGreeting.textContent = `Welcome back, ${displayName}!`;
-    loginToggleBtn.textContent = "Sign Out";
-    loginToggleBtn.className = "login-toggle-btn logout";
-    loginToggleBtn.onclick = () => {
-      if (confirm("Are you sure you want to sign out? Your chat history will no longer be saved.")) {
-        handleLogout();
-      }
-    };
+    
+    // Show sign out button and profile, hide signup
+    authButtons.innerHTML = '<button id="login-toggle-btn" class="login-toggle-btn logout" onclick="handleLogoutClick()">Sign Out</button>';
     profileBtn.style.display = "inline-block";
   } else {
     userGreeting.textContent = "Welcome! Please sign in to save your data.";
-    loginToggleBtn.textContent = "Sign In";
-    loginToggleBtn.className = "login-toggle-btn";
-    loginToggleBtn.onclick = showLoginModal;
+    
+    // Show sign in and sign up buttons
+    authButtons.innerHTML = `
+      <button id="login-toggle-btn" class="login-toggle-btn" onclick="showLoginModal()">Sign In</button>
+      <button id="signup-btn" class="signup-btn" onclick="showSignupModal()">Sign Up</button>
+    `;
     profileBtn.style.display = "none";
   }
 }
 
-// ==========================
-// PROFILE MANAGEMENT SYSTEM
-// ==========================
-function getUserProfile(username) {
-  // Get user profile from localStorage based on username
-  const profiles = JSON.parse(localStorage.getItem("csUserProfiles") || "{}");
-  return profiles[username] || null;
+function handleLogoutClick() {
+  if (confirm("Are you sure you want to sign out? Your chat history will no longer be saved.")) {
+    handleLogout();
+  }
 }
 
-function saveUserProfile(userAccount) {
-  // Save user profile to localStorage
-  const profiles = JSON.parse(localStorage.getItem("csUserProfiles") || "{}");
-  profiles[userAccount.username] = userAccount;
-  localStorage.setItem("csUserProfiles", JSON.stringify(profiles));
+// ==========================
+// PROFILE MANAGEMENT SYSTEM  
+// ==========================
+async function saveUserProfile(updates) {
+  if (!currentFirebaseUser || !currentUserProfile) return false;
   
-  // Also update current session
-  localStorage.setItem("csUserAccount", JSON.stringify(userAccount));
+  try {
+    // Update profile in Firebase
+    const result = await updateFirebaseUserProfile(currentFirebaseUser.uid, updates);
+    
+    if (result.success) {
+      // Update local profile state
+      currentUserProfile = { ...currentUserProfile, ...updates };
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Save profile error:", error);
+    return false;
+  }
 }
 
 function showProfileModal() {
@@ -1064,45 +1201,25 @@ function checkAboutQuestions(msgText) {
 // INIT
 // ==========================
 window.onload = function () {
-  // Initialize authentication first
-  if (isAuthenticated()) {
-    const user = getCurrentUser();
-    userName = user.username;
-    hideAuthOverlay();
-    enableDashboardFeatures();
-  } else {
-    showAuthOverlay();
-    disableDashboardFeatures();
-  }
+  // Initialize Firebase Authentication State Listener
+  setupFirebaseAuthListener();
+  
+  // Initialize UI based on current auth state
   updateLoginStatus();
 
-  // Legacy support: if old csUserName exists but no account, migrate to new system
-  // Handle legacy user migration and authentication
-  let savedName = localStorage.getItem("csUserName");
-  if (savedName && !isAuthenticated()) {
-    handleLogin(savedName);
+  // Legacy support: Clear any old localStorage data since we're using Firebase now
+  if (localStorage.getItem("csUserName") || localStorage.getItem("csUserAccount")) {
+    console.log("Migrating from localStorage to Firebase authentication");
+    localStorage.removeItem("csUserName");
+    localStorage.removeItem("csUserAccount");
+    localStorage.removeItem("csUserProfiles");
   }
 
-  // Load preferences based on authentication status
-  if (isAuthenticated()) {
-    const user = getCurrentUser();
-    if (user && user.preferences) {
-      // Load user-specific preferences
-      applyUserPreferences(user.preferences);
-    } else {
-      // Fallback to global settings for users without profiles
-      let savedTheme = localStorage.getItem("csTheme");
-      if (savedTheme) setTheme(savedTheme);
-      let savedAccent = localStorage.getItem("csAccent");
-      if (savedAccent) setAccentColor(savedAccent);
-    }
-  } else {
-    // Load global preferences for guests
-    let savedTheme = localStorage.getItem("csTheme");
-    if (savedTheme) setTheme(savedTheme);
-    let savedAccent = localStorage.getItem("csAccent");
-    if (savedAccent) setAccentColor(savedAccent);
-  }
+  // Load default preferences (will be overridden by user preferences once authenticated)
+  let savedTheme = localStorage.getItem("csTheme");
+  if (savedTheme) setTheme(savedTheme);
+  let savedAccent = localStorage.getItem("csAccent");
+  if (savedAccent) setAccentColor(savedAccent);
 
   // Only load history if authenticated
   if (isAuthenticated()) {
@@ -1147,20 +1264,52 @@ window.onload = function () {
   document.getElementById("clear-reminders").onclick = clearReminders;
   
   // Login form handler
-  document.getElementById("login-form").onsubmit = function(e) {
+  document.getElementById("login-form").onsubmit = async function(e) {
     e.preventDefault();
-    const username = document.getElementById("login-username").value.trim();
+    const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value.trim();
     
-    if (username) {
-      handleLogin(username, password);
+    if (email && password) {
+      await handleLogin(email, password);
     } else {
-      alert("Please enter a username!");
+      document.getElementById("login-error").textContent = "Please enter both email and password!";
+      document.getElementById("login-error").style.display = "block";
     }
   };
 
+  // Signup form handler
+  document.getElementById("signup-form").onsubmit = async function(e) {
+    e.preventDefault();
+    const username = document.getElementById("signup-username").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const displayName = document.getElementById("signup-display-name").value.trim();
+    const password = document.getElementById("signup-password").value.trim();
+    const confirmPassword = document.getElementById("signup-confirm-password").value.trim();
+    
+    // Validation
+    if (!username || !email || !password) {
+      document.getElementById("signup-error").textContent = "Please fill in all required fields!";
+      document.getElementById("signup-error").style.display = "block";
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      document.getElementById("signup-error").textContent = "Passwords do not match!";
+      document.getElementById("signup-error").style.display = "block";
+      return;
+    }
+    
+    if (password.length < 6) {
+      document.getElementById("signup-error").textContent = "Password must be at least 6 characters long!";
+      document.getElementById("signup-error").style.display = "block";
+      return;
+    }
+    
+    await handleSignup(email, password, username, displayName);
+  };
+
   // Profile form handler
-  document.getElementById("profile-form").onsubmit = function(e) {
+  document.getElementById("profile-form").onsubmit = async function(e) {
     e.preventDefault();
     
     if (!isAuthenticated()) {
@@ -1169,7 +1318,7 @@ window.onload = function () {
     }
     
     const user = getCurrentUser();
-    if (!user) return;
+    if (!user || !currentFirebaseUser) return;
     
     // Get form data
     const displayName = document.getElementById("profile-display-name").value.trim();
@@ -1178,30 +1327,37 @@ window.onload = function () {
     const accentColor = document.getElementById("profile-accent").value;
     const voice = document.getElementById("profile-voice").value;
     
-    // Update user account
-    user.displayName = displayName || user.username;
-    user.email = email;
-    user.preferences = user.preferences || {};
-    user.preferences.theme = theme;
-    user.preferences.accentColor = accentColor;
-    user.preferences.voice = voice;
-    user.profileUpdated = Date.now();
+    // Prepare updates
+    const updates = {
+      displayName: displayName || user.username,
+      email: email,
+      preferences: {
+        theme: theme,
+        accentColor: accentColor,
+        voice: voice
+      },
+      profileUpdated: Date.now()
+    };
     
-    // Save profile
-    saveUserProfile(user);
+    // Save profile to Firebase
+    const success = await saveUserProfile(updates);
     
-    // Apply new preferences immediately
-    applyUserPreferences(user.preferences);
-    
-    // Update UI to reflect changes
-    updateLoginStatus();
-    
-    // Show success message
-    document.getElementById("profile-success").style.display = "block";
-    setTimeout(() => {
-      document.getElementById("profile-success").style.display = "none";
-      closeProfileModal();
-    }, 2000);
+    if (success) {
+      // Apply new preferences immediately
+      applyUserPreferences(updates.preferences);
+      
+      // Update UI to reflect changes
+      updateLoginStatus();
+      
+      // Show success message
+      document.getElementById("profile-success").style.display = "block";
+      setTimeout(() => {
+        document.getElementById("profile-success").style.display = "none";
+        closeProfileModal();
+      }, 2000);
+    } else {
+      alert("Failed to update profile. Please try again.");
+    }
   };
 
   displayGoals();

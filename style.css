@@ -286,6 +286,13 @@ body.dark .controls-area button:hover {
   gap: 1em;
   flex-wrap: wrap;
 }
+
+.auth-buttons {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+}
+
 .login-toggle-btn {
   background: var(--accent, #0078d4);
   color: #fff;
@@ -298,18 +305,40 @@ body.dark .controls-area button:hover {
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0,120,212,0.3);
 }
+
 .login-toggle-btn:hover {
   background: #005fa3;
   box-shadow: 0 4px 12px rgba(0,120,212,0.4);
   transform: translateY(-1px);
 }
+
 .login-toggle-btn.logout {
   background: #dc3545;
   box-shadow: 0 2px 8px rgba(220,53,69,0.3);
 }
+
 .login-toggle-btn.logout:hover {
   background: #c82333;
   box-shadow: 0 4px 12px rgba(220,53,69,0.4);
+}
+
+.signup-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(40,167,69,0.3);
+}
+
+.signup-btn:hover {
+  background: #218838;
+  box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+  transform: translateY(-1px);
 }
 
 /* Profile Button */
@@ -386,28 +415,28 @@ body.dark .auth-message {
 }
 
 /* Login Modal Enhancements */
-#login-form, #profile-form {
+#login-form, #profile-form, #signup-form {
   display: flex;
   flex-direction: column;
   gap: 1em;
 }
-#login-form label, #profile-form label {
+#login-form label, #profile-form label, #signup-form label {
   font-weight: 600;
   margin-bottom: 0.3em;
   display: block;
 }
-#login-form input, #profile-form input, #profile-form select {
+#login-form input, #profile-form input, #profile-form select, #signup-form input {
   padding: 0.8em;
   border-radius: 6px;
   border: 2px solid #ddd;
   font-size: 1em;
   transition: border-color 0.2s;
 }
-#login-form input:focus, #profile-form input:focus, #profile-form select:focus {
+#login-form input:focus, #profile-form input:focus, #profile-form select:focus, #signup-form input:focus {
   border-color: var(--accent, #0078d4);
   outline: none;
 }
-.login-btn, .save-profile-btn {
+.login-btn, .save-profile-btn, .signup-btn {
   background: var(--accent, #0078d4);
   color: #fff;
   border: none;
@@ -420,10 +449,36 @@ body.dark .auth-message {
   transition: all 0.2s ease;
   box-shadow: 0 3px 10px rgba(0,120,212,0.3);
 }
-.login-btn:hover, .save-profile-btn:hover {
+
+.login-btn:hover, .save-profile-btn:hover, .signup-btn:hover {
   background: #005fa3;
   box-shadow: 0 5px 15px rgba(0,120,212,0.4);
   transform: translateY(-1px);
+}
+
+/* Auth Switch Buttons */
+.auth-switch {
+  text-align: center;
+  margin-top: 1em;
+  padding-top: 1em;
+  border-top: 1px solid #eee;
+}
+
+.switch-auth-btn {
+  background: none;
+  border: none;
+  color: var(--accent, #0078d4);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  transition: all 0.2s ease;
+}
+
+.switch-auth-btn:hover {
+  color: #005fa3;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Profile Modal Specific Styles */
