@@ -12,6 +12,14 @@
   <header class="page-header">
     <h1>CS Assistant</h1>
     <p>Your smart companion, always ready to help 🤖</p>
+    <div id="login-status" class="login-status">
+      <span id="user-greeting">Welcome! Please sign in to save your data.</span>
+      <button id="profile-btn" class="profile-btn" onclick="showProfileModal()" style="display:none;">👤 Profile</button>
+      <div id="auth-buttons" class="auth-buttons">
+        <button id="login-toggle-btn" class="login-toggle-btn" onclick="showLoginModal()">Sign In</button>
+        <button id="signup-btn" class="signup-btn" onclick="showSignupModal()">Sign Up</button>
+      </div>
+    </div>
   </header>
 
   <!-- 💬 Main Chat Area -->
@@ -92,10 +100,125 @@
   <!-- Optional Emoji Picker UI (if you implement it) -->
   <div id="emoji-picker" class="emoji-picker" style="display:none"></div>
 
+  <!-- Login Status & Auth Overlay -->
+  <div id="auth-overlay" class="auth-overlay" style="display:none;">
+    <div class="auth-message">
+      <h2>🔐 Sign In Required</h2>
+      <p>Sign in to save your chat history, goals, and reminders!</p>
+      <button id="show-login-btn" class="auth-btn">Sign In</button>
+    </div>
+  </div>
+
   <!-- Page Footer -->
   <footer class="page-footer">
     <p>&copy; 2025 CS Assistant. Built with 💙 in Nigeria.</p>
   </footer>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeLoginModal()">&times;</span>
+      <h2>Welcome Back</h2>
+      <p>Sign in to access your account and saved data.</p>
+      <form id="login-form">
+        <label for="login-email">Email:</label>
+        <input type="email" id="login-email" required placeholder="Enter your email" aria-label="Email">
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" required placeholder="Enter your password" aria-label="Password">
+        <button type="submit" class="login-btn">Sign In</button>
+      </form>
+      <div class="auth-switch">
+        <p>Don't have an account? <button type="button" onclick="showSignupModal()" class="switch-auth-btn">Sign Up</button></p>
+      </div>
+      <div id="login-success" style="display:none; color:green; margin-top:1em;">
+        Welcome! You can now save your chat history.
+      </div>
+      <div id="login-error" style="display:none; color:red; margin-top:1em;"></div>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeSignupModal()">&times;</span>
+      <h2>Create Account</h2>
+      <p>Join CS Assistant to save your chat history and personalize your experience.</p>
+      <form id="signup-form">
+        <label for="signup-username">Username:</label>
+        <input type="text" id="signup-username" required placeholder="Choose a username" aria-label="Username">
+        <label for="signup-email">Email:</label>
+        <input type="email" id="signup-email" required placeholder="Enter your email" aria-label="Email">
+        <label for="signup-display-name">Display Name (optional):</label>
+        <input type="text" id="signup-display-name" placeholder="How others see your name" aria-label="Display name">
+        <label for="signup-password">Password:</label>
+        <input type="password" id="signup-password" required placeholder="Create a password" aria-label="Password">
+        <label for="signup-confirm-password">Confirm Password:</label>
+        <input type="password" id="signup-confirm-password" required placeholder="Confirm your password" aria-label="Confirm password">
+        <button type="submit" class="signup-btn">Create Account</button>
+      </form>
+      <div class="auth-switch">
+        <p>Already have an account? <button type="button" onclick="showLoginModal()" class="switch-auth-btn">Sign In</button></p>
+      </div>
+      <div id="signup-success" style="display:none; color:green; margin-top:1em;">
+        Account created successfully! Welcome to CS Assistant.
+      </div>
+      <div id="signup-error" style="display:none; color:red; margin-top:1em;"></div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeProfileModal()">&times;</span>
+      <h2>👤 User Profile</h2>
+      <form id="profile-form">
+        <div class="profile-section">
+          <h3>Personal Information</h3>
+          <label for="profile-username">Username:</label>
+          <input type="text" id="profile-username" readonly placeholder="Username" aria-label="Username">
+          
+          <label for="profile-display-name">Display Name:</label>
+          <input type="text" id="profile-display-name" placeholder="How others see your name" aria-label="Display name">
+          
+          <label for="profile-email">Email (optional):</label>
+          <input type="email" id="profile-email" placeholder="your.email@example.com" aria-label="Email">
+        </div>
+        
+        <div class="profile-section">
+          <h3>Design Preferences</h3>
+          <label for="profile-theme">Theme:</label>
+          <select id="profile-theme" aria-label="Theme preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+          </select>
+          
+          <label for="profile-accent">Accent Color:</label>
+          <input type="color" id="profile-accent" aria-label="Accent color preference" value="#0078d4">
+          
+          <label for="profile-voice">Preferred Voice:</label>
+          <select id="profile-voice" aria-label="Voice preference">
+            <!-- Will be populated by JavaScript -->
+          </select>
+        </div>
+        
+        <div class="profile-actions">
+          <button type="submit" class="save-profile-btn">💾 Save Profile</button>
+          <button type="button" class="cancel-profile-btn" onclick="closeProfileModal()">❌ Cancel</button>
+        </div>
+      </form>
+      
+      <div id="profile-success" style="display:none; color:green; margin-top:1em;">
+        Profile updated successfully!
+      </div>
+      
+      <div class="profile-info">
+        <h3>Account Information</h3>
+        <p><strong>Account Created:</strong> <span id="profile-created-date">-</span></p>
+        <p><strong>Last Login:</strong> <span id="profile-last-login">-</span></p>
+        <p><strong>Admin Status:</strong> <span id="profile-admin-status">Regular User</span></p>
+      </div>
+    </div>
+  </div>
 
   <!-- Support Modal (Advanced) -->
   <div id="support-modal" class="modal" style="display:none;">
@@ -135,7 +258,12 @@
   </div>
 
   <!-- Scripts -->
+  <!-- Firebase SDK - Production Firebase configuration enabled -->
+  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

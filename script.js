@@ -8,9 +8,12 @@ let userName = null,
     accentColor = "#0078d4",
     chatHistory = [],
     unreadCount = 0,
-    typingTimeout = null;
+    typingTimeout = null,
+    currentFirebaseUser = null,
+    currentUserProfile = null;
 
 const ADMIN_USERNAME = "RayBen445";
+const ADMIN_EMAIL = "oladoyeheritage445@gmail.com";
 const assistantName = "CS Assistant";
 const assistantAvatar = "🤖";
 const userAvatar = "🧑";
@@ -49,7 +52,407 @@ const ICONS = {
 function nowISO() { return new Date().toISOString(); }
 function formatTime(ts) { return new Date(ts).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}); }
 function isAdmin() {
-  return userName && userName.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase();
+  return currentUserProfile && currentUserProfile.isAdmin === true;
+}
+
+// ==========================
+// AUTHENTICATION SYSTEM
+// ==========================
+function isAuthenticated() {
+  return currentFirebaseUser !== null;
+}
+
+function getCurrentUser() {
+  return currentUserProfile;
+}
+
+function showLoginModal() {
+  closeSignupModal(); // Close signup if open
+  document.getElementById("login-modal").style.display = "flex";
+  document.getElementById("login-email").focus();
+}
+
+function closeLoginModal() {
+  document.getElementById("login-modal").style.display = "none";
+  document.getElementById("login-form").reset();
+  document.getElementById("login-success").style.display = "none";
+  document.getElementById("login-error").style.display = "none";
+}
+
+function showSignupModal() {
+  closeLoginModal(); // Close login if open
+  document.getElementById("signup-modal").style.display = "flex";
+  document.getElementById("signup-username").focus();
+}
+
+function closeSignupModal() {
+  document.getElementById("signup-modal").style.display = "none";
+  document.getElementById("signup-form").reset();
+  document.getElementById("signup-success").style.display = "none";
+  document.getElementById("signup-error").style.display = "none";
+}
+
+async function handleLogin(email, password) {
+  try {
+    // Clear any existing error messages
+    document.getElementById("login-error").style.display = "none";
+    
+    const result = await firebaseSignIn(email, password);
+    
+    if (result.success) {
+      // For demo mode, manually trigger login since there's no Firebase auth listener
+      if (!firebaseAvailable) {
+        currentFirebaseUser = result.user;
+        currentUserProfile = result.profile;
+        userName = result.profile.username;
+        
+        // Apply user preferences
+        if (result.profile.preferences) {
+          applyUserPreferences(result.profile.preferences);
+        }
+        
+        // Update UI
+        updateLoginStatus();
+        hideAuthOverlay();
+        enableDashboardFeatures();
+        
+        // Show admin controls if admin
+        if (result.profile.isAdmin) {
+          showAdminControls();
+        }
+      }
+      
+      // Firebase auth state listener will handle the rest for real Firebase
+      document.getElementById("login-success").style.display = "block";
+      setTimeout(() => {
+        closeLoginModal();
+      }, 2000);
+    } else {
+      // Show error message
+      document.getElementById("login-error").textContent = result.error;
+      document.getElementById("login-error").style.display = "block";
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    document.getElementById("login-error").textContent = "Login failed. Please try again.";
+    document.getElementById("login-error").style.display = "block";
+  }
+}
+
+async function handleSignup(email, password, username, displayName) {
+  try {
+    // Clear any existing error messages
+    document.getElementById("signup-error").style.display = "none";
+    
+    const result = await firebaseSignUp(email, password, username, displayName);
+    
+    if (result.success) {
+      // For demo mode, manually trigger login since there's no Firebase auth listener
+      if (!firebaseAvailable) {
+        currentFirebaseUser = result.user;
+        currentUserProfile = result.profile;
+        userName = result.profile.username;
+        
+        // Apply user preferences
+        if (result.profile.preferences) {
+          applyUserPreferences(result.profile.preferences);
+        }
+        
+        // Update UI
+        updateLoginStatus();
+        hideAuthOverlay();
+        enableDashboardFeatures();
+        
+        // Show admin controls if admin
+        if (result.profile.isAdmin) {
+          showAdminControls();
+        }
+      }
+      
+      // Firebase auth state listener will handle the rest for real Firebase
+      document.getElementById("signup-success").style.display = "block";
+      setTimeout(() => {
+        closeSignupModal();
+      }, 2000);
+    } else {
+      // Show error message
+      document.getElementById("signup-error").textContent = result.error;
+      document.getElementById("signup-error").style.display = "block";
+    }
+  } catch (error) {
+    console.error("Signup error:", error);
+    document.getElementById("signup-error").textContent = "Account creation failed. Please try again.";
+    document.getElementById("signup-error").style.display = "block";
+  }
+}
+
+async function handleLogout() {
+  try {
+    const result = await firebaseSignOut();
+    
+    // For demo mode, manually handle logout since there's no Firebase auth listener
+    if (!firebaseAvailable) {
+      userName = null;
+      currentFirebaseUser = null;
+      currentUserProfile = null;
+      
+      // Update UI
+      updateLoginStatus();
+      showAuthOverlay();
+      disableDashboardFeatures();
+      
+      // Hide admin controls
+      const adminPanel = document.getElementById("admin-panel");
+      if (adminPanel) {
+        adminPanel.remove();
+      }
+    }
+    
+    // Firebase auth state listener will handle the UI updates for real Firebase
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+}
+
+// ==========================
+// FIREBASE AUTH STATE LISTENER
+// ==========================
+function setupFirebaseAuthListener() {
+  if (!firebaseAvailable) {
+    console.log("Running in demo mode - Firebase auth listener not available");
+    // In demo mode, check for any existing localStorage session
+    initializeDemoMode();
+    return;
+  }
+  
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      // User is signed in
+      const profile = await getFirebaseUserProfile(user.uid);
+      if (profile) {
+        // Update global state
+        userName = profile.username;
+        currentFirebaseUser = user;
+        currentUserProfile = profile;
+        
+        // Apply user preferences
+        if (profile.preferences) {
+          applyUserPreferences(profile.preferences);
+        }
+        
+        // Update UI
+        updateLoginStatus();
+        hideAuthOverlay();
+        enableDashboardFeatures();
+        
+        // Show admin controls if admin
+        if (profile.isAdmin) {
+          showAdminControls();
+        }
+      }
+    } else {
+      // User is signed out
+      userName = null;
+      currentFirebaseUser = null;
+      currentUserProfile = null;
+      
+      // Update UI
+      updateLoginStatus();
+      showAuthOverlay();
+      disableDashboardFeatures();
+      
+      // Hide admin controls
+      const adminPanel = document.getElementById("admin-panel");
+      if (adminPanel) {
+        adminPanel.remove();
+      }
+    }
+  });
+}
+
+function initializeDemoMode() {
+  // Demo mode initialization
+  console.log("Initializing demo mode");
+  updateLoginStatus();
+  showAuthOverlay();
+  disableDashboardFeatures();
+}
+
+function updateLoginStatus() {
+  const userGreeting = document.getElementById("user-greeting");
+  const loginToggleBtn = document.getElementById("login-toggle-btn");
+  const signupBtn = document.getElementById("signup-btn");
+  const profileBtn = document.getElementById("profile-btn");
+  const authButtons = document.getElementById("auth-buttons");
+  
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    const displayName = user.displayName || user.username;
+    userGreeting.textContent = `Welcome back, ${displayName}!`;
+    
+    // Show sign out button and profile, hide signup
+    authButtons.innerHTML = '<button id="login-toggle-btn" class="login-toggle-btn logout" onclick="handleLogoutClick()">Sign Out</button>';
+    profileBtn.style.display = "inline-block";
+  } else {
+    userGreeting.textContent = "Welcome! Please sign in to save your data.";
+    
+    // Show sign in and sign up buttons
+    authButtons.innerHTML = `
+      <button id="login-toggle-btn" class="login-toggle-btn" onclick="showLoginModal()">Sign In</button>
+      <button id="signup-btn" class="signup-btn" onclick="showSignupModal()">Sign Up</button>
+    `;
+    profileBtn.style.display = "none";
+  }
+}
+
+function handleLogoutClick() {
+  if (confirm("Are you sure you want to sign out? Your chat history will no longer be saved.")) {
+    handleLogout();
+  }
+}
+
+// ==========================
+// PROFILE MANAGEMENT SYSTEM  
+// ==========================
+async function saveUserProfile(updates) {
+  if (!currentFirebaseUser || !currentUserProfile) return false;
+  
+  try {
+    // Update profile in Firebase
+    const result = await updateFirebaseUserProfile(currentFirebaseUser.uid, updates);
+    
+    if (result.success) {
+      // Update local profile state
+      currentUserProfile = { ...currentUserProfile, ...updates };
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Save profile error:", error);
+    return false;
+  }
+}
+
+function showProfileModal() {
+  if (!isAuthenticated()) return;
+  
+  const user = getCurrentUser();
+  if (!user) return;
+  
+  // Populate form with current user data
+  document.getElementById("profile-username").value = user.username;
+  document.getElementById("profile-display-name").value = user.displayName || user.username;
+  document.getElementById("profile-email").value = user.email || "";
+  document.getElementById("profile-theme").value = user.preferences?.theme || "light";
+  document.getElementById("profile-accent").value = user.preferences?.accentColor || "#0078d4";
+  
+  // Populate voice options
+  populateProfileVoices(user.preferences?.voice);
+  
+  // Update account info
+  document.getElementById("profile-created-date").textContent = user.profileCreated ? 
+    new Date(user.profileCreated).toLocaleDateString() : "-";
+  document.getElementById("profile-last-login").textContent = user.lastLoginTime ? 
+    new Date(user.lastLoginTime).toLocaleString() : "-";
+  document.getElementById("profile-admin-status").textContent = user.isAdmin ? "Administrator" : "Regular User";
+  
+  document.getElementById("profile-modal").style.display = "flex";
+  document.getElementById("profile-display-name").focus();
+}
+
+function closeProfileModal() {
+  document.getElementById("profile-modal").style.display = "none";
+  document.getElementById("profile-form").reset();
+  document.getElementById("profile-success").style.display = "none";
+}
+
+function populateProfileVoices(selectedVoice = null) {
+  const profileVoiceSelect = document.getElementById("profile-voice");
+  profileVoiceSelect.innerHTML = '<option value="">Default</option>';
+  
+  if ('speechSynthesis' in window) {
+    const voices = speechSynthesis.getVoices();
+    voices.forEach(voice => {
+      const option = document.createElement("option");
+      option.value = voice.name;
+      option.textContent = `${voice.name} (${voice.lang})`;
+      if (selectedVoice === voice.name) {
+        option.selected = true;
+      }
+      profileVoiceSelect.appendChild(option);
+    });
+  }
+}
+
+function applyUserPreferences(preferences) {
+  if (!preferences) return;
+  
+  // Apply theme
+  if (preferences.theme) {
+    currentTheme = preferences.theme;
+    document.body.className = preferences.theme;
+    updateThemeToggle();
+  }
+  
+  // Apply accent color
+  if (preferences.accentColor) {
+    accentColor = preferences.accentColor;
+    document.documentElement.style.setProperty("--accent", preferences.accentColor);
+    document.getElementById("accent-picker").value = preferences.accentColor;
+  }
+  
+  // Apply voice preference
+  if (preferences.voice) {
+    selectedVoice = preferences.voice;
+    const voiceSelect = document.getElementById("voice-selector");
+    if (voiceSelect) {
+      voiceSelect.value = preferences.voice;
+    }
+  }
+}
+
+function updateThemeToggle() {
+  const themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    themeToggle.textContent = currentTheme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+  }
+}
+
+function showAuthOverlay() {
+  document.getElementById("auth-overlay").style.display = "flex";
+  document.getElementById("show-login-btn").onclick = showLoginModal;
+}
+
+function hideAuthOverlay() {
+  document.getElementById("auth-overlay").style.display = "none";
+}
+
+function disableDashboardFeatures() {
+  // Disable goals, reminders, and history sections for non-authenticated users
+  const sections = ["goals", "reminders", "history"];
+  sections.forEach(id => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.classList.add("disabled");
+      section.style.position = "relative";
+    }
+  });
+}
+
+function enableDashboardFeatures() {
+  // Enable dashboard features for authenticated users
+  const sections = ["goals", "reminders", "history"];
+  sections.forEach(id => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.classList.remove("disabled");
+    }
+  });
+  
+  // Reload saved data
+  displayGoals();
+  displayReminders();
+  displayChatHistory();
 }
 
 // ==========================
@@ -58,12 +461,39 @@ function isAdmin() {
 function setTheme(theme) {
   currentTheme = theme;
   document.body.className = currentTheme;
-  localStorage.setItem("csTheme", theme);
+  
+  // Save to user profile if authenticated
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    if (user) {
+      user.preferences = user.preferences || {};
+      user.preferences.theme = theme;
+      saveUserProfile(user);
+    }
+  } else {
+    // Fallback to global storage for guests
+    localStorage.setItem("csTheme", theme);
+  }
+  
+  updateThemeToggle();
 }
+
 function setAccentColor(color) {
   accentColor = color;
   document.documentElement.style.setProperty('--accent', color);
-  localStorage.setItem("csAccent", color);
+  
+  // Save to user profile if authenticated
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    if (user) {
+      user.preferences = user.preferences || {};
+      user.preferences.accentColor = color;
+      saveUserProfile(user);
+    }
+  } else {
+    // Fallback to global storage for guests
+    localStorage.setItem("csAccent", color);
+  }
 }
 
 // ==========================
@@ -246,7 +676,7 @@ function loadTicketHistory() {
 // ADMIN CONTROLS (icons for admin actions)
 // ==========================
 function showAdminControls() {
-  if (!isAdmin()) return;
+  if (!isAuthenticated() || !isAdmin()) return;
   let adminPanel = document.getElementById("admin-panel");
   if (!adminPanel) {
     adminPanel = document.createElement("div");
@@ -331,6 +761,11 @@ function clearAllHistory() {
 // GOALS, REMINDERS, HISTORY
 // ==========================
 function addGoal() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to save goals!");
+    showLoginModal();
+    return;
+  }
   const input = document.getElementById("new-goal");
   const text = input.value.trim();
   if (text) {
@@ -340,21 +775,35 @@ function addGoal() {
   }
 }
 function saveGoal(text) {
+  if (!isAuthenticated()) return;
   let goals = JSON.parse(localStorage.getItem("goals") || "[]");
   goals.push({ text, timestamp: Date.now() });
   localStorage.setItem("goals", JSON.stringify(goals));
 }
 function clearGoals() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to manage goals!");
+    return;
+  }
   localStorage.removeItem("goals");
   displayGoals();
 }
 function displayGoals() {
   const list = document.getElementById("goals-list");
+  if (!isAuthenticated()) {
+    list.innerHTML = "<li>Sign in to save and view your goals.</li>";
+    return;
+  }
   const goals = JSON.parse(localStorage.getItem("goals") || "[]");
   list.innerHTML = goals.map(g => `<li>${g.text}</li>`).join("");
 }
 
 function addReminder() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to save reminders!");
+    showLoginModal();
+    return;
+  }
   const input = document.getElementById("new-reminder");
   const text = input.value.trim();
   if (text) {
@@ -364,22 +813,35 @@ function addReminder() {
   }
 }
 function saveReminder(text) {
+  if (!isAuthenticated()) return;
   let reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
   reminders.push({ text, timestamp: Date.now() });
   localStorage.setItem("reminders", JSON.stringify(reminders));
 }
 function clearReminders() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to manage reminders!");
+    return;
+  }
   localStorage.removeItem("reminders");
   displayReminders();
 }
 function displayReminders() {
   const list = document.getElementById("reminders-list");
+  if (!isAuthenticated()) {
+    list.innerHTML = "<li>Sign in to save and view your reminders.</li>";
+    return;
+  }
   const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
   list.innerHTML = reminders.map(r => `<li>${r.text}</li>`).join("");
 }
 
 function displayChatHistory() {
   const container = document.getElementById("chat-history");
+  if (!isAuthenticated()) {
+    container.innerHTML = "<p>Sign in to save and view your chat history!</p>";
+    return;
+  }
   const history = JSON.parse(localStorage.getItem("chat-history") || "[]");
   let html = "";
   if (history.length === 0) {
@@ -612,8 +1074,11 @@ async function sendMessage(text=null) {
   };
   renderMessage(userMsgObj);
 
-  chatHistory.push(userMsgObj);
-  localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  // Only save to history if user is authenticated
+  if (isAuthenticated()) {
+    chatHistory.push(userMsgObj);
+    localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  }
 
   input.value = "";
 
@@ -639,8 +1104,11 @@ async function sendMessage(text=null) {
   };
   renderMessage(botMsgObj);
 
-  chatHistory.push(botMsgObj);
-  localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  // Only save to history if user is authenticated
+  if (isAuthenticated()) {
+    chatHistory.push(botMsgObj);
+    localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  }
 
   speakText(reply);
 }
@@ -733,23 +1201,39 @@ function checkAboutQuestions(msgText) {
 // INIT
 // ==========================
 window.onload = function () {
-  let savedName = localStorage.getItem("csUserName");
-  if (savedName) userName = savedName;
+  // Initialize Firebase Authentication State Listener
+  setupFirebaseAuthListener();
+  
+  // Initialize UI based on current auth state
+  updateLoginStatus();
+
+  // Legacy support: Clear any old localStorage data since we're using Firebase now
+  if (localStorage.getItem("csUserName") || localStorage.getItem("csUserAccount")) {
+    console.log("Migrating from localStorage to Firebase authentication");
+    localStorage.removeItem("csUserName");
+    localStorage.removeItem("csUserAccount");
+    localStorage.removeItem("csUserProfiles");
+  }
+
+  // Load default preferences (will be overridden by user preferences once authenticated)
   let savedTheme = localStorage.getItem("csTheme");
   if (savedTheme) setTheme(savedTheme);
   let savedAccent = localStorage.getItem("csAccent");
   if (savedAccent) setAccentColor(savedAccent);
 
-  let savedHistory = localStorage.getItem("chat-history");
-  if (savedHistory) {
-    chatHistory = JSON.parse(savedHistory);
-    chatHistory.forEach(entry => renderMessage({
-      ...entry,
-      avatar: entry.role === "user" ? userAvatar : assistantAvatar,
-      name: entry.role === "user" ? userName : assistantName,
-      badge: getRoleBadge(entry.role),
-      editable: entry.role === "user"
-    }));
+  // Only load history if authenticated
+  if (isAuthenticated()) {
+    let savedHistory = localStorage.getItem("chat-history");
+    if (savedHistory) {
+      chatHistory = JSON.parse(savedHistory);
+      chatHistory.forEach(entry => renderMessage({
+        ...entry,
+        avatar: entry.role === "user" ? userAvatar : assistantAvatar,
+        name: entry.role === "user" ? userName : assistantName,
+        badge: getRoleBadge(entry.role),
+        editable: entry.role === "user"
+      }));
+    }
   }
 
   document.getElementById("send-btn").innerHTML = `${ICONS.send} Send`;
@@ -778,14 +1262,115 @@ window.onload = function () {
   document.getElementById("clear-goals").onclick = clearGoals;
   document.getElementById("add-reminder").onclick = addReminder;
   document.getElementById("clear-reminders").onclick = clearReminders;
+  
+  // Login form handler
+  document.getElementById("login-form").onsubmit = async function(e) {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value.trim();
+    
+    if (email && password) {
+      await handleLogin(email, password);
+    } else {
+      document.getElementById("login-error").textContent = "Please enter both email and password!";
+      document.getElementById("login-error").style.display = "block";
+    }
+  };
+
+  // Signup form handler
+  document.getElementById("signup-form").onsubmit = async function(e) {
+    e.preventDefault();
+    const username = document.getElementById("signup-username").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const displayName = document.getElementById("signup-display-name").value.trim();
+    const password = document.getElementById("signup-password").value.trim();
+    const confirmPassword = document.getElementById("signup-confirm-password").value.trim();
+    
+    // Validation
+    if (!username || !email || !password) {
+      document.getElementById("signup-error").textContent = "Please fill in all required fields!";
+      document.getElementById("signup-error").style.display = "block";
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      document.getElementById("signup-error").textContent = "Passwords do not match!";
+      document.getElementById("signup-error").style.display = "block";
+      return;
+    }
+    
+    if (password.length < 6) {
+      document.getElementById("signup-error").textContent = "Password must be at least 6 characters long!";
+      document.getElementById("signup-error").style.display = "block";
+      return;
+    }
+    
+    await handleSignup(email, password, username, displayName);
+  };
+
+  // Profile form handler
+  document.getElementById("profile-form").onsubmit = async function(e) {
+    e.preventDefault();
+    
+    if (!isAuthenticated()) {
+      alert("You must be logged in to update your profile!");
+      return;
+    }
+    
+    const user = getCurrentUser();
+    if (!user || !currentFirebaseUser) return;
+    
+    // Get form data
+    const displayName = document.getElementById("profile-display-name").value.trim();
+    const email = document.getElementById("profile-email").value.trim();
+    const theme = document.getElementById("profile-theme").value;
+    const accentColor = document.getElementById("profile-accent").value;
+    const voice = document.getElementById("profile-voice").value;
+    
+    // Prepare updates
+    const updates = {
+      displayName: displayName || user.username,
+      email: email,
+      preferences: {
+        theme: theme,
+        accentColor: accentColor,
+        voice: voice
+      },
+      profileUpdated: Date.now()
+    };
+    
+    // Save profile to Firebase
+    const success = await saveUserProfile(updates);
+    
+    if (success) {
+      // Apply new preferences immediately
+      applyUserPreferences(updates.preferences);
+      
+      // Update UI to reflect changes
+      updateLoginStatus();
+      
+      // Show success message
+      document.getElementById("profile-success").style.display = "block";
+      setTimeout(() => {
+        document.getElementById("profile-success").style.display = "none";
+        closeProfileModal();
+      }, 2000);
+    } else {
+      alert("Failed to update profile. Please try again.");
+    }
+  };
 
   displayGoals();
   displayReminders();
   displayChatHistory();
 
-  showAdminControls();
+  // Only show admin controls for authenticated admin users
+  if (isAuthenticated() && isAdmin()) {
+    showAdminControls();
+  }
 
-  updatePresence(true);
+  // Initialize presence (could be used for future features like online status)
+  // updatePresence(true);
 
   if (!userName) {
     renderMessage({
