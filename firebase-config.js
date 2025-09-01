@@ -2,14 +2,14 @@
 // FIREBASE CONFIGURATION
 // ==========================
 
-// Firebase configuration - Replace with your actual Firebase project config
+// Firebase configuration - Production Firebase project config
 const firebaseConfig = {
-  apiKey: "AIzaSyDemo-Replace-With-Your-Actual-API-Key",
-  authDomain: "cs-assistant-demo.firebaseapp.com",
-  projectId: "cs-assistant-demo",
-  storageBucket: "cs-assistant-demo.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef123456789012"
+  apiKey: "AIzaSyDC5wv7g_SVN5TUu0mJaNCXsixQ2xGEn0U",
+  authDomain: "sample-firebase-ai-app-f3995.firebaseapp.com",
+  projectId: "sample-firebase-ai-app-f3995",
+  storageBucket: "sample-firebase-ai-app-f3995.firebasestorage.app",
+  messagingSenderId: "1075039632976",
+  appId: "1:1075039632976:web:3ec667db87f8c47de25b55"
 };
 
 // Initialize Firebase (with fallback for demo mode)
