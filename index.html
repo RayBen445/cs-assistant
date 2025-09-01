@@ -12,6 +12,10 @@
   <header class="page-header">
     <h1>CS Assistant</h1>
     <p>Your smart companion, always ready to help 🤖</p>
+    <div id="login-status" class="login-status">
+      <span id="user-greeting">Welcome! Please sign in to save your data.</span>
+      <button id="login-toggle-btn" class="login-toggle-btn" onclick="showLoginModal()">Sign In</button>
+    </div>
   </header>
 
   <!-- 💬 Main Chat Area -->
@@ -92,10 +96,38 @@
   <!-- Optional Emoji Picker UI (if you implement it) -->
   <div id="emoji-picker" class="emoji-picker" style="display:none"></div>
 
+  <!-- Login Status & Auth Overlay -->
+  <div id="auth-overlay" class="auth-overlay" style="display:none;">
+    <div class="auth-message">
+      <h2>🔐 Sign In Required</h2>
+      <p>Sign in to save your chat history, goals, and reminders!</p>
+      <button id="show-login-btn" class="auth-btn">Sign In</button>
+    </div>
+  </div>
+
   <!-- Page Footer -->
   <footer class="page-footer">
     <p>&copy; 2025 CS Assistant. Built with 💙 in Nigeria.</p>
   </footer>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeLoginModal()">&times;</span>
+      <h2>Welcome to CS Assistant</h2>
+      <p>Sign in to save your chat history and personalize your experience.</p>
+      <form id="login-form">
+        <label for="login-username">Username:</label>
+        <input type="text" id="login-username" required placeholder="Enter your username" aria-label="Username">
+        <label for="login-password">Password (optional for demo):</label>
+        <input type="password" id="login-password" placeholder="Enter your password (optional)" aria-label="Password">
+        <button type="submit" class="login-btn">Sign In</button>
+      </form>
+      <div id="login-success" style="display:none; color:green; margin-top:1em;">
+        Welcome! You can now save your chat history.
+      </div>
+    </div>
+  </div>
 
   <!-- Support Modal (Advanced) -->
   <div id="support-modal" class="modal" style="display:none;">

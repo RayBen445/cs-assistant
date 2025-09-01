@@ -53,6 +53,140 @@ function isAdmin() {
 }
 
 // ==========================
+// AUTHENTICATION SYSTEM
+// ==========================
+function isAuthenticated() {
+  return localStorage.getItem("csUserAccount") !== null;
+}
+
+function getCurrentUser() {
+  const userAccount = localStorage.getItem("csUserAccount");
+  return userAccount ? JSON.parse(userAccount) : null;
+}
+
+function showLoginModal() {
+  document.getElementById("login-modal").style.display = "flex";
+  document.getElementById("login-username").focus();
+}
+
+function closeLoginModal() {
+  document.getElementById("login-modal").style.display = "none";
+  document.getElementById("login-form").reset();
+  document.getElementById("login-success").style.display = "none";
+}
+
+function handleLogin(username, _password = "") {
+  // Store user account info
+  const userAccount = {
+    username: username,
+    loginTime: Date.now(),
+    isAdmin: username.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase()
+  };
+  
+  localStorage.setItem("csUserAccount", JSON.stringify(userAccount));
+  userName = username;
+  localStorage.setItem("csUserName", username);
+  
+  // Update UI
+  updateLoginStatus();
+  hideAuthOverlay();
+  closeLoginModal();
+  
+  // Show success message briefly
+  document.getElementById("login-success").style.display = "block";
+  setTimeout(() => {
+    document.getElementById("login-success").style.display = "none";
+  }, 3000);
+  
+  // Re-enable dashboard features
+  enableDashboardFeatures();
+  
+  // Show admin controls if admin
+  if (isAdmin()) {
+    showAdminControls();
+  }
+  
+  return true;
+}
+
+function handleLogout() {
+  // Clear user account
+  localStorage.removeItem("csUserAccount");
+  localStorage.removeItem("csUserName");
+  userName = null;
+  
+  // Update UI
+  updateLoginStatus();
+  showAuthOverlay();
+  disableDashboardFeatures();
+  
+  // Hide admin controls
+  const adminPanel = document.getElementById("admin-panel");
+  if (adminPanel) {
+    adminPanel.remove();
+  }
+}
+
+function updateLoginStatus() {
+  const userGreeting = document.getElementById("user-greeting");
+  const loginToggleBtn = document.getElementById("login-toggle-btn");
+  
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    userGreeting.textContent = `Welcome back, ${user.username}!`;
+    loginToggleBtn.textContent = "Sign Out";
+    loginToggleBtn.className = "login-toggle-btn logout";
+    loginToggleBtn.onclick = () => {
+      if (confirm("Are you sure you want to sign out? Your chat history will no longer be saved.")) {
+        handleLogout();
+      }
+    };
+  } else {
+    userGreeting.textContent = "Welcome! Please sign in to save your data.";
+    loginToggleBtn.textContent = "Sign In";
+    loginToggleBtn.className = "login-toggle-btn";
+    loginToggleBtn.onclick = showLoginModal;
+  }
+}
+
+function showAuthOverlay() {
+  document.getElementById("auth-overlay").style.display = "flex";
+  document.getElementById("show-login-btn").onclick = showLoginModal;
+}
+
+function hideAuthOverlay() {
+  document.getElementById("auth-overlay").style.display = "none";
+}
+
+function disableDashboardFeatures() {
+  // Disable goals, reminders, and history sections for non-authenticated users
+  const sections = ["goals", "reminders", "history"];
+  sections.forEach(id => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.classList.add("disabled");
+      section.style.position = "relative";
+    }
+  });
+}
+
+function enableDashboardFeatures() {
+  // Enable dashboard features for authenticated users
+  const sections = ["goals", "reminders", "history"];
+  sections.forEach(id => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.classList.remove("disabled");
+    }
+  });
+  
+  // Reload saved data
+  displayGoals();
+  displayReminders();
+  displayChatHistory();
+}
+
+// ==========================
 // THEME & ACCENT
 // ==========================
 function setTheme(theme) {
@@ -246,7 +380,7 @@ function loadTicketHistory() {
 // ADMIN CONTROLS (icons for admin actions)
 // ==========================
 function showAdminControls() {
-  if (!isAdmin()) return;
+  if (!isAuthenticated() || !isAdmin()) return;
   let adminPanel = document.getElementById("admin-panel");
   if (!adminPanel) {
     adminPanel = document.createElement("div");
@@ -331,6 +465,11 @@ function clearAllHistory() {
 // GOALS, REMINDERS, HISTORY
 // ==========================
 function addGoal() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to save goals!");
+    showLoginModal();
+    return;
+  }
   const input = document.getElementById("new-goal");
   const text = input.value.trim();
   if (text) {
@@ -340,21 +479,35 @@ function addGoal() {
   }
 }
 function saveGoal(text) {
+  if (!isAuthenticated()) return;
   let goals = JSON.parse(localStorage.getItem("goals") || "[]");
   goals.push({ text, timestamp: Date.now() });
   localStorage.setItem("goals", JSON.stringify(goals));
 }
 function clearGoals() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to manage goals!");
+    return;
+  }
   localStorage.removeItem("goals");
   displayGoals();
 }
 function displayGoals() {
   const list = document.getElementById("goals-list");
+  if (!isAuthenticated()) {
+    list.innerHTML = "<li>Sign in to save and view your goals.</li>";
+    return;
+  }
   const goals = JSON.parse(localStorage.getItem("goals") || "[]");
   list.innerHTML = goals.map(g => `<li>${g.text}</li>`).join("");
 }
 
 function addReminder() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to save reminders!");
+    showLoginModal();
+    return;
+  }
   const input = document.getElementById("new-reminder");
   const text = input.value.trim();
   if (text) {
@@ -364,22 +517,35 @@ function addReminder() {
   }
 }
 function saveReminder(text) {
+  if (!isAuthenticated()) return;
   let reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
   reminders.push({ text, timestamp: Date.now() });
   localStorage.setItem("reminders", JSON.stringify(reminders));
 }
 function clearReminders() {
+  if (!isAuthenticated()) {
+    alert("Please sign in to manage reminders!");
+    return;
+  }
   localStorage.removeItem("reminders");
   displayReminders();
 }
 function displayReminders() {
   const list = document.getElementById("reminders-list");
+  if (!isAuthenticated()) {
+    list.innerHTML = "<li>Sign in to save and view your reminders.</li>";
+    return;
+  }
   const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
   list.innerHTML = reminders.map(r => `<li>${r.text}</li>`).join("");
 }
 
 function displayChatHistory() {
   const container = document.getElementById("chat-history");
+  if (!isAuthenticated()) {
+    container.innerHTML = "<p>Sign in to save and view your chat history!</p>";
+    return;
+  }
   const history = JSON.parse(localStorage.getItem("chat-history") || "[]");
   let html = "";
   if (history.length === 0) {
@@ -612,8 +778,11 @@ async function sendMessage(text=null) {
   };
   renderMessage(userMsgObj);
 
-  chatHistory.push(userMsgObj);
-  localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  // Only save to history if user is authenticated
+  if (isAuthenticated()) {
+    chatHistory.push(userMsgObj);
+    localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  }
 
   input.value = "";
 
@@ -639,8 +808,11 @@ async function sendMessage(text=null) {
   };
   renderMessage(botMsgObj);
 
-  chatHistory.push(botMsgObj);
-  localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  // Only save to history if user is authenticated
+  if (isAuthenticated()) {
+    chatHistory.push(botMsgObj);
+    localStorage.setItem("chat-history", JSON.stringify(chatHistory));
+  }
 
   speakText(reply);
 }
@@ -733,23 +905,42 @@ function checkAboutQuestions(msgText) {
 // INIT
 // ==========================
 window.onload = function () {
+  // Initialize authentication first
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    userName = user.username;
+    hideAuthOverlay();
+    enableDashboardFeatures();
+  } else {
+    showAuthOverlay();
+    disableDashboardFeatures();
+  }
+  updateLoginStatus();
+
+  // Legacy support: if old csUserName exists but no account, migrate to new system
   let savedName = localStorage.getItem("csUserName");
-  if (savedName) userName = savedName;
+  if (savedName && !isAuthenticated()) {
+    handleLogin(savedName);
+  }
+
   let savedTheme = localStorage.getItem("csTheme");
   if (savedTheme) setTheme(savedTheme);
   let savedAccent = localStorage.getItem("csAccent");
   if (savedAccent) setAccentColor(savedAccent);
 
-  let savedHistory = localStorage.getItem("chat-history");
-  if (savedHistory) {
-    chatHistory = JSON.parse(savedHistory);
-    chatHistory.forEach(entry => renderMessage({
-      ...entry,
-      avatar: entry.role === "user" ? userAvatar : assistantAvatar,
-      name: entry.role === "user" ? userName : assistantName,
-      badge: getRoleBadge(entry.role),
-      editable: entry.role === "user"
-    }));
+  // Only load history if authenticated
+  if (isAuthenticated()) {
+    let savedHistory = localStorage.getItem("chat-history");
+    if (savedHistory) {
+      chatHistory = JSON.parse(savedHistory);
+      chatHistory.forEach(entry => renderMessage({
+        ...entry,
+        avatar: entry.role === "user" ? userAvatar : assistantAvatar,
+        name: entry.role === "user" ? userName : assistantName,
+        badge: getRoleBadge(entry.role),
+        editable: entry.role === "user"
+      }));
+    }
   }
 
   document.getElementById("send-btn").innerHTML = `${ICONS.send} Send`;
@@ -778,12 +969,28 @@ window.onload = function () {
   document.getElementById("clear-goals").onclick = clearGoals;
   document.getElementById("add-reminder").onclick = addReminder;
   document.getElementById("clear-reminders").onclick = clearReminders;
+  
+  // Login form handler
+  document.getElementById("login-form").onsubmit = function(e) {
+    e.preventDefault();
+    const username = document.getElementById("login-username").value.trim();
+    const password = document.getElementById("login-password").value.trim();
+    
+    if (username) {
+      handleLogin(username, password);
+    } else {
+      alert("Please enter a username!");
+    }
+  };
 
   displayGoals();
   displayReminders();
   displayChatHistory();
 
-  showAdminControls();
+  // Only show admin controls for authenticated admin users
+  if (isAuthenticated() && isAdmin()) {
+    showAdminControls();
+  }
 
   updatePresence(true);
 
