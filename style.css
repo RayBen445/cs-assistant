@@ -161,6 +161,23 @@ input:focus, textarea:focus { outline: 2px solid var(--accent, #0078d4);}
 .login-toggle-btn.logout:hover {
   background: #c82333;
 }
+
+/* Profile Button */
+.profile-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background 0.2s;
+  margin-right: 0.5em;
+}
+.profile-btn:hover {
+  background: #218838;
+}
+
 #user-greeting {
   font-size: 0.9em;
   color: #666;
@@ -211,28 +228,28 @@ body.dark .auth-message {
 }
 
 /* Login Modal Enhancements */
-#login-form {
+#login-form, #profile-form {
   display: flex;
   flex-direction: column;
   gap: 1em;
 }
-#login-form label {
+#login-form label, #profile-form label {
   font-weight: 600;
   margin-bottom: 0.3em;
   display: block;
 }
-#login-form input {
+#login-form input, #profile-form input, #profile-form select {
   padding: 0.8em;
   border-radius: 6px;
   border: 2px solid #ddd;
   font-size: 1em;
   transition: border-color 0.2s;
 }
-#login-form input:focus {
+#login-form input:focus, #profile-form input:focus, #profile-form select:focus {
   border-color: var(--accent, #0078d4);
   outline: none;
 }
-.login-btn {
+.login-btn, .save-profile-btn {
   background: var(--accent, #0078d4);
   color: #fff;
   border: none;
@@ -243,8 +260,72 @@ body.dark .auth-message {
   margin-top: 0.5em;
   transition: background 0.2s;
 }
-.login-btn:hover {
+.login-btn:hover, .save-profile-btn:hover {
   background: #005fa3;
+}
+
+/* Profile Modal Specific Styles */
+.profile-section {
+  margin-bottom: 1.5em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #eee;
+}
+.profile-section:last-of-type {
+  border-bottom: none;
+}
+.profile-section h3 {
+  margin: 0 0 1em 0;
+  color: var(--accent, #0078d4);
+  font-size: 1.1em;
+}
+.profile-actions {
+  display: flex;
+  gap: 1em;
+  margin-top: 1.5em;
+}
+.cancel-profile-btn {
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.8em 1.5em;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+.cancel-profile-btn:hover {
+  background: #5a6268;
+}
+.profile-info {
+  margin-top: 2em;
+  padding-top: 1.5em;
+  border-top: 2px solid #eee;
+  font-size: 0.9em;
+}
+.profile-info h3 {
+  margin: 0 0 0.8em 0;
+  color: #666;
+}
+.profile-info p {
+  margin: 0.4em 0;
+  color: #777;
+}
+
+/* Dark mode profile modal */
+body.dark .profile-section {
+  border-bottom-color: #444;
+}
+body.dark .profile-section h3 {
+  color: #66b3ff;
+}
+body.dark .profile-info {
+  border-top-color: #444;
+}
+body.dark .profile-info h3 {
+  color: #aaa;
+}
+body.dark .profile-info p {
+  color: #bbb;
 }
 
 /* Dashboard section improvements */

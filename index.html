@@ -14,6 +14,7 @@
     <p>Your smart companion, always ready to help 🤖</p>
     <div id="login-status" class="login-status">
       <span id="user-greeting">Welcome! Please sign in to save your data.</span>
+      <button id="profile-btn" class="profile-btn" onclick="showProfileModal()" style="display:none;">👤 Profile</button>
       <button id="login-toggle-btn" class="login-toggle-btn" onclick="showLoginModal()">Sign In</button>
     </div>
   </header>
@@ -125,6 +126,60 @@
       </form>
       <div id="login-success" style="display:none; color:green; margin-top:1em;">
         Welcome! You can now save your chat history.
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeProfileModal()">&times;</span>
+      <h2>👤 User Profile</h2>
+      <form id="profile-form">
+        <div class="profile-section">
+          <h3>Personal Information</h3>
+          <label for="profile-username">Username:</label>
+          <input type="text" id="profile-username" readonly placeholder="Username" aria-label="Username">
+          
+          <label for="profile-display-name">Display Name:</label>
+          <input type="text" id="profile-display-name" placeholder="How others see your name" aria-label="Display name">
+          
+          <label for="profile-email">Email (optional):</label>
+          <input type="email" id="profile-email" placeholder="your.email@example.com" aria-label="Email">
+        </div>
+        
+        <div class="profile-section">
+          <h3>Design Preferences</h3>
+          <label for="profile-theme">Theme:</label>
+          <select id="profile-theme" aria-label="Theme preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+          </select>
+          
+          <label for="profile-accent">Accent Color:</label>
+          <input type="color" id="profile-accent" aria-label="Accent color preference" value="#0078d4">
+          
+          <label for="profile-voice">Preferred Voice:</label>
+          <select id="profile-voice" aria-label="Voice preference">
+            <!-- Will be populated by JavaScript -->
+          </select>
+        </div>
+        
+        <div class="profile-actions">
+          <button type="submit" class="save-profile-btn">💾 Save Profile</button>
+          <button type="button" class="cancel-profile-btn" onclick="closeProfileModal()">❌ Cancel</button>
+        </div>
+      </form>
+      
+      <div id="profile-success" style="display:none; color:green; margin-top:1em;">
+        Profile updated successfully!
+      </div>
+      
+      <div class="profile-info">
+        <h3>Account Information</h3>
+        <p><strong>Account Created:</strong> <span id="profile-created-date">-</span></p>
+        <p><strong>Last Login:</strong> <span id="profile-last-login">-</span></p>
+        <p><strong>Admin Status:</strong> <span id="profile-admin-status">Regular User</span></p>
       </div>
     </div>
   </div>

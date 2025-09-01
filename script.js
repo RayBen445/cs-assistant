@@ -76,16 +76,39 @@ function closeLoginModal() {
 }
 
 function handleLogin(username, _password = "") {
-  // Store user account info
-  const userAccount = {
-    username: username,
-    loginTime: Date.now(),
-    isAdmin: username.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase()
-  };
+  // Check if user already exists, if not create new profile
+  const existingAccount = getUserProfile(username);
+  
+  let userAccount;
+  if (existingAccount) {
+    // Update existing account with new login time
+    userAccount = {
+      ...existingAccount,
+      lastLoginTime: Date.now()
+    };
+  } else {
+    // Create new user account with default profile
+    userAccount = {
+      username: username,
+      displayName: username,
+      email: "",
+      profileCreated: Date.now(),
+      lastLoginTime: Date.now(),
+      isAdmin: username.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase(),
+      preferences: {
+        theme: "light",
+        accentColor: "#0078d4",
+        voice: null
+      }
+    };
+  }
   
   localStorage.setItem("csUserAccount", JSON.stringify(userAccount));
   userName = username;
   localStorage.setItem("csUserName", username);
+  
+  // Apply user preferences
+  applyUserPreferences(userAccount.preferences);
   
   // Update UI
   updateLoginStatus();
@@ -130,10 +153,12 @@ function handleLogout() {
 function updateLoginStatus() {
   const userGreeting = document.getElementById("user-greeting");
   const loginToggleBtn = document.getElementById("login-toggle-btn");
+  const profileBtn = document.getElementById("profile-btn");
   
   if (isAuthenticated()) {
     const user = getCurrentUser();
-    userGreeting.textContent = `Welcome back, ${user.username}!`;
+    const displayName = user.displayName || user.username;
+    userGreeting.textContent = `Welcome back, ${displayName}!`;
     loginToggleBtn.textContent = "Sign Out";
     loginToggleBtn.className = "login-toggle-btn logout";
     loginToggleBtn.onclick = () => {
@@ -141,11 +166,117 @@ function updateLoginStatus() {
         handleLogout();
       }
     };
+    profileBtn.style.display = "inline-block";
   } else {
     userGreeting.textContent = "Welcome! Please sign in to save your data.";
     loginToggleBtn.textContent = "Sign In";
     loginToggleBtn.className = "login-toggle-btn";
     loginToggleBtn.onclick = showLoginModal;
+    profileBtn.style.display = "none";
+  }
+}
+
+// ==========================
+// PROFILE MANAGEMENT SYSTEM
+// ==========================
+function getUserProfile(username) {
+  // Get user profile from localStorage based on username
+  const profiles = JSON.parse(localStorage.getItem("csUserProfiles") || "{}");
+  return profiles[username] || null;
+}
+
+function saveUserProfile(userAccount) {
+  // Save user profile to localStorage
+  const profiles = JSON.parse(localStorage.getItem("csUserProfiles") || "{}");
+  profiles[userAccount.username] = userAccount;
+  localStorage.setItem("csUserProfiles", JSON.stringify(profiles));
+  
+  // Also update current session
+  localStorage.setItem("csUserAccount", JSON.stringify(userAccount));
+}
+
+function showProfileModal() {
+  if (!isAuthenticated()) return;
+  
+  const user = getCurrentUser();
+  if (!user) return;
+  
+  // Populate form with current user data
+  document.getElementById("profile-username").value = user.username;
+  document.getElementById("profile-display-name").value = user.displayName || user.username;
+  document.getElementById("profile-email").value = user.email || "";
+  document.getElementById("profile-theme").value = user.preferences?.theme || "light";
+  document.getElementById("profile-accent").value = user.preferences?.accentColor || "#0078d4";
+  
+  // Populate voice options
+  populateProfileVoices(user.preferences?.voice);
+  
+  // Update account info
+  document.getElementById("profile-created-date").textContent = user.profileCreated ? 
+    new Date(user.profileCreated).toLocaleDateString() : "-";
+  document.getElementById("profile-last-login").textContent = user.lastLoginTime ? 
+    new Date(user.lastLoginTime).toLocaleString() : "-";
+  document.getElementById("profile-admin-status").textContent = user.isAdmin ? "Administrator" : "Regular User";
+  
+  document.getElementById("profile-modal").style.display = "flex";
+  document.getElementById("profile-display-name").focus();
+}
+
+function closeProfileModal() {
+  document.getElementById("profile-modal").style.display = "none";
+  document.getElementById("profile-form").reset();
+  document.getElementById("profile-success").style.display = "none";
+}
+
+function populateProfileVoices(selectedVoice = null) {
+  const profileVoiceSelect = document.getElementById("profile-voice");
+  profileVoiceSelect.innerHTML = '<option value="">Default</option>';
+  
+  if ('speechSynthesis' in window) {
+    const voices = speechSynthesis.getVoices();
+    voices.forEach(voice => {
+      const option = document.createElement("option");
+      option.value = voice.name;
+      option.textContent = `${voice.name} (${voice.lang})`;
+      if (selectedVoice === voice.name) {
+        option.selected = true;
+      }
+      profileVoiceSelect.appendChild(option);
+    });
+  }
+}
+
+function applyUserPreferences(preferences) {
+  if (!preferences) return;
+  
+  // Apply theme
+  if (preferences.theme) {
+    currentTheme = preferences.theme;
+    document.body.className = preferences.theme;
+    updateThemeToggle();
+  }
+  
+  // Apply accent color
+  if (preferences.accentColor) {
+    accentColor = preferences.accentColor;
+    document.documentElement.style.setProperty("--accent", preferences.accentColor);
+    document.getElementById("accent-picker").value = preferences.accentColor;
+  }
+  
+  // Apply voice preference
+  if (preferences.voice) {
+    selectedVoice = preferences.voice;
+    const voiceSelect = document.getElementById("voice-selector");
+    if (voiceSelect) {
+      voiceSelect.value = preferences.voice;
+    }
+  }
+}
+
+function updateThemeToggle() {
+  const themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    themeToggle.textContent = currentTheme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
   }
 }
 
@@ -192,12 +323,39 @@ function enableDashboardFeatures() {
 function setTheme(theme) {
   currentTheme = theme;
   document.body.className = currentTheme;
-  localStorage.setItem("csTheme", theme);
+  
+  // Save to user profile if authenticated
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    if (user) {
+      user.preferences = user.preferences || {};
+      user.preferences.theme = theme;
+      saveUserProfile(user);
+    }
+  } else {
+    // Fallback to global storage for guests
+    localStorage.setItem("csTheme", theme);
+  }
+  
+  updateThemeToggle();
 }
+
 function setAccentColor(color) {
   accentColor = color;
   document.documentElement.style.setProperty('--accent', color);
-  localStorage.setItem("csAccent", color);
+  
+  // Save to user profile if authenticated
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    if (user) {
+      user.preferences = user.preferences || {};
+      user.preferences.accentColor = color;
+      saveUserProfile(user);
+    }
+  } else {
+    // Fallback to global storage for guests
+    localStorage.setItem("csAccent", color);
+  }
 }
 
 // ==========================
@@ -918,15 +1076,32 @@ window.onload = function () {
   updateLoginStatus();
 
   // Legacy support: if old csUserName exists but no account, migrate to new system
+  // Handle legacy user migration and authentication
   let savedName = localStorage.getItem("csUserName");
   if (savedName && !isAuthenticated()) {
     handleLogin(savedName);
   }
 
-  let savedTheme = localStorage.getItem("csTheme");
-  if (savedTheme) setTheme(savedTheme);
-  let savedAccent = localStorage.getItem("csAccent");
-  if (savedAccent) setAccentColor(savedAccent);
+  // Load preferences based on authentication status
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    if (user && user.preferences) {
+      // Load user-specific preferences
+      applyUserPreferences(user.preferences);
+    } else {
+      // Fallback to global settings for users without profiles
+      let savedTheme = localStorage.getItem("csTheme");
+      if (savedTheme) setTheme(savedTheme);
+      let savedAccent = localStorage.getItem("csAccent");
+      if (savedAccent) setAccentColor(savedAccent);
+    }
+  } else {
+    // Load global preferences for guests
+    let savedTheme = localStorage.getItem("csTheme");
+    if (savedTheme) setTheme(savedTheme);
+    let savedAccent = localStorage.getItem("csAccent");
+    if (savedAccent) setAccentColor(savedAccent);
+  }
 
   // Only load history if authenticated
   if (isAuthenticated()) {
@@ -983,6 +1158,51 @@ window.onload = function () {
     }
   };
 
+  // Profile form handler
+  document.getElementById("profile-form").onsubmit = function(e) {
+    e.preventDefault();
+    
+    if (!isAuthenticated()) {
+      alert("You must be logged in to update your profile!");
+      return;
+    }
+    
+    const user = getCurrentUser();
+    if (!user) return;
+    
+    // Get form data
+    const displayName = document.getElementById("profile-display-name").value.trim();
+    const email = document.getElementById("profile-email").value.trim();
+    const theme = document.getElementById("profile-theme").value;
+    const accentColor = document.getElementById("profile-accent").value;
+    const voice = document.getElementById("profile-voice").value;
+    
+    // Update user account
+    user.displayName = displayName || user.username;
+    user.email = email;
+    user.preferences = user.preferences || {};
+    user.preferences.theme = theme;
+    user.preferences.accentColor = accentColor;
+    user.preferences.voice = voice;
+    user.profileUpdated = Date.now();
+    
+    // Save profile
+    saveUserProfile(user);
+    
+    // Apply new preferences immediately
+    applyUserPreferences(user.preferences);
+    
+    // Update UI to reflect changes
+    updateLoginStatus();
+    
+    // Show success message
+    document.getElementById("profile-success").style.display = "block";
+    setTimeout(() => {
+      document.getElementById("profile-success").style.display = "none";
+      closeProfileModal();
+    }, 2000);
+  };
+
   displayGoals();
   displayReminders();
   displayChatHistory();
@@ -992,7 +1212,8 @@ window.onload = function () {
     showAdminControls();
   }
 
-  updatePresence(true);
+  // Initialize presence (could be used for future features like online status)
+  // updatePresence(true);
 
   if (!userName) {
     renderMessage({
