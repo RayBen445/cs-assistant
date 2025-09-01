@@ -11,6 +11,7 @@ let userName = null,
     typingTimeout = null;
 
 const ADMIN_USERNAME = "RayBen445";
+const ADMIN_EMAIL = "oladoyeheritage445@gmail.com";
 const assistantName = "CS Assistant";
 const assistantAvatar = "🤖";
 const userAvatar = "🧑";
@@ -91,7 +92,7 @@ function handleLogin(username, _password = "") {
     userAccount = {
       username: username,
       displayName: username,
-      email: "",
+      email: username.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase() ? ADMIN_EMAIL : "",
       profileCreated: Date.now(),
       lastLoginTime: Date.now(),
       isAdmin: username.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase(),
